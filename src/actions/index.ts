@@ -102,7 +102,7 @@ const deletePhoto = defineAction({
     }
 
     await db.delete(photos).where(eq(photos.id, id));
-    await deleteStoredImage(photo.thumbnailUrl, photo.displayUrl);
+    await deleteStoredImage(photo.thumbnailUrl);
   },
 });
 

@@ -1,6 +1,11 @@
 FROM node:24-alpine AS build
 WORKDIR /app
 
+# .env is excluded from the build context (.dockerignore) - PUBLIC_SITE_URL is
+# needed at build time for the sitemap/canonical URLs, since pages prerender here.
+ARG PUBLIC_SITE_URL
+ENV PUBLIC_SITE_URL=${PUBLIC_SITE_URL}
+
 COPY package.json package-lock.json ./
 RUN npm ci
 

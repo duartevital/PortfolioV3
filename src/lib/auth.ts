@@ -6,19 +6,39 @@ import { ADMIN_PASSWORD_HASH, SESSION_SECRET } from 'astro:env/server';
 export const SESSION_COOKIE_NAME = 'vital_session';
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
-// Vite's dotenv-expand runs on .env and treats an unescaped `$name` as a variable
-// reference, silently deleting it if undefined - this corrupts an unescaped bcrypt
-// hash. Fail loudly at startup rather than rejecting every login as "incorrect
-// password" with no clue why. See .env.example for the required escaping (\$).
-if (!/^\$2[aby]\$\d{2}\$[A-Za-z0-9./]{53}$/.test(ADMIN_PASSWORD_HASH)) {
-  throw new Error(
-    'ADMIN_PASSWORD_HASH is not a valid bcrypt hash. If you just set it in .env, ' +
-      'make sure every "$" is escaped as "\\$" - see .env.example.'
-  );
+// ADMIN_PASSWORD_HASH is stored base64-encoded in .env, not as a raw bcrypt hash.
+// Reason: this same .env file is read by two mechanisms with opposite handling of
+// "$" - Vite's dotenv-expand (used by `astro dev`/`astro build`) silently deletes
+// an unescaped `$name` reference, so it needs "\$" escaping; Docker's env_file
+// (used at container runtime) passes values through completely literally, so
+// escaping there just leaves literal backslashes in the value. There's no one
+// escaping convention for a raw hash that satisfies both. Base64 has no "$", so
+// it round-trips correctly through either path.
+//
+// Decoded and validated lazily (not at module load): this module is imported by
+// middleware, which runs for every route including static pages during
+// prerendering - a build with no ADMIN_PASSWORD_HASH set (e.g. the Docker build
+// stage, which deliberately excludes .env) must still be able to prerender
+// /, /about, /contact. The check only needs to actually run once someone submits
+// the login form.
+let decodedHash: string | undefined;
+
+function getPasswordHash(): string {
+  if (decodedHash) return decodedHash;
+
+  const decoded = Buffer.from(ADMIN_PASSWORD_HASH, 'base64').toString('utf-8');
+  if (!/^\$2[aby]\$\d{2}\$[A-Za-z0-9./]{53}$/.test(decoded)) {
+    throw new Error(
+      'ADMIN_PASSWORD_HASH is not a valid base64-encoded bcrypt hash - see .env.example.'
+    );
+  }
+
+  decodedHash = decoded;
+  return decodedHash;
 }
 
 export function verifyPassword(password: string): boolean {
-  return bcrypt.compareSync(password, ADMIN_PASSWORD_HASH);
+  return bcrypt.compareSync(password, getPasswordHash());
 }
 
 function sign(payload: string): string {

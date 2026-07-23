@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import BlurImage from './BlurImage.vue';
 import { CATEGORIES, type CategorySlug } from '../lib/categories';
+import { getDisplaySrcSet } from '../lib/srcset';
 
 interface Photo {
   id: string;
@@ -119,7 +120,12 @@ onUnmounted(() => {
       <button type="button" class="lightbox-next" aria-label="Next photo" @click="showNext">›</button>
 
       <figure class="lightbox-content">
-        <BlurImage :src="openPhoto.displayUrl" :alt="openPhoto.title" />
+        <BlurImage
+          :src="openPhoto.displayUrl"
+          :srcset="getDisplaySrcSet(openPhoto.displayUrl)"
+          sizes="90vw"
+          :alt="openPhoto.title"
+        />
         <figcaption>
           <h2>{{ openPhoto.title }}</h2>
           <p v-if="openPhoto.description">{{ openPhoto.description }}</p>

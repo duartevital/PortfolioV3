@@ -4,6 +4,8 @@ import { ref } from 'vue';
 defineProps<{
   src: string;
   alt: string;
+  srcset?: string;
+  sizes?: string;
 }>();
 
 const loaded = ref(false);
@@ -11,7 +13,15 @@ const loaded = ref(false);
 
 <template>
   <div class="blur-image" :class="{ loaded }">
-    <img :src="src" :alt="alt" loading="lazy" decoding="async" @load="loaded = true" />
+    <img
+      :src="src"
+      :srcset="srcset"
+      :sizes="sizes"
+      :alt="alt"
+      loading="lazy"
+      decoding="async"
+      @load="loaded = true"
+    />
   </div>
 </template>
 
