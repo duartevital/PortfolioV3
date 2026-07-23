@@ -1,5 +1,10 @@
 ---
 import '../styles/tokens.css';
+import Gallery from '../components/Gallery.vue';
+import { PUBLIC_SITE_URL } from 'astro:env/client';
+
+const description =
+  'Vital Photography — a landscape, nature, street and urban photography portfolio.';
 ---
 
 <html lang="en">
@@ -9,21 +14,35 @@ import '../styles/tokens.css';
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Vital Photography</title>
+
+		<meta name="description" content={description} />
+		<link rel="canonical" href={PUBLIC_SITE_URL} />
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content="Vital Photography" />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={PUBLIC_SITE_URL} />
 	</head>
 	<body>
-		<h1>Vital Photography</h1>
-		<p>Gallery coming in Phase 2.</p>
+		<h1 class="site-title">Vital Photography</h1>
+		<Gallery client:load />
 	</body>
 </html>
 
-<style>
+<style is:global>
 	body {
+		margin: 0;
 		background: var(--color-bg);
 		color: var(--color-text);
 		font-family: system-ui, sans-serif;
 	}
+</style>
 
-	p {
-		color: var(--color-muted);
+<style>
+	.site-title {
+		text-align: center;
+		padding: 2rem 1.5rem 0;
+		margin: 0;
+		font-weight: 500;
+		letter-spacing: 0.02em;
 	}
 </style>
