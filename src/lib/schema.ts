@@ -1,9 +1,10 @@
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import type { CategorySlug } from './categories';
 
 export const photos = sqliteTable('photos', {
   id: text('id').primaryKey(), // uuid
   title: text('title').notNull(),
-  category: text('category').notNull(), // 'landscape-nature' | 'street-urban'
+  category: text('category').$type<CategorySlug>().notNull(),
   description: text('description'),
   shootDate: text('shoot_date'), // ISO 8601 date
   visible: integer('visible', { mode: 'boolean' }).notNull().default(true),

@@ -1,0 +1,32 @@
+---
+import '../../styles/tokens.css';
+import { asc } from 'drizzle-orm';
+import { db } from '../../lib/db';
+import { photos } from '../../lib/schema';
+import AdminPanel from '../../components/AdminPanel.vue';
+
+export const prerender = false;
+
+const initialPhotos = await db.select().from(photos).orderBy(asc(photos.order));
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="robots" content="noindex" />
+		<title>Admin — Vital Photography</title>
+	</head>
+	<body>
+		<AdminPanel client:load initialPhotos={initialPhotos} />
+	</body>
+</html>
+
+<style is:global>
+	body {
+		margin: 0;
+		background: var(--color-bg);
+		color: var(--color-text);
+		font-family: system-ui, sans-serif;
+	}
+</style>

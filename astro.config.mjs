@@ -12,6 +12,11 @@ export default defineConfig({
     mode: 'standalone'
   }),
 
+  security: {
+    // Default is 1 MB, too small for photo uploads.
+    actionBodySizeLimit: 30 * 1024 * 1024,
+  },
+
   env: {
     schema: {
       DATABASE_URL: envField.string({ context: 'server', access: 'public', default: 'file:./data/vital.db' }),

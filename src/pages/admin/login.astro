@@ -1,0 +1,103 @@
+---
+import '../../styles/tokens.css';
+import { actions } from 'astro:actions';
+
+export const prerender = false;
+
+const result = Astro.getActionResult(actions.login);
+if (result && !result.error) {
+  return Astro.redirect('/admin');
+}
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Admin Login — Vital Photography</title>
+	</head>
+	<body>
+		<main>
+			<form method="POST" action={actions.login}>
+				<h1>Admin Login</h1>
+				<label>
+					Password
+					<input type="password" name="password" required autofocus />
+				</label>
+				<button type="submit">Log in</button>
+				{result?.error && <p class="error">{result.error.message}</p>}
+			</form>
+		</main>
+	</body>
+</html>
+
+<style is:global>
+	body {
+		margin: 0;
+		min-height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--color-bg);
+		color: var(--color-text);
+		font-family: system-ui, sans-serif;
+	}
+</style>
+
+<style>
+	form {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		width: min(90vw, 320px);
+		padding: 2rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+	}
+
+	h1 {
+		font-size: 1.25rem;
+		margin: 0;
+		text-align: center;
+	}
+
+	label {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		font-size: 0.9rem;
+		color: var(--color-muted);
+	}
+
+	input {
+		background: var(--color-bg);
+		border: 1px solid var(--color-border);
+		color: var(--color-text);
+		padding: 0.6rem 0.75rem;
+		border-radius: 4px;
+		font-size: 1rem;
+	}
+
+	button {
+		background: var(--color-accent);
+		color: var(--color-bg);
+		border: none;
+		padding: 0.6rem 0.75rem;
+		border-radius: 4px;
+		font-size: 1rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	button:hover {
+		background: var(--color-accent-dim);
+		color: var(--color-text);
+	}
+
+	.error {
+		color: #d97373;
+		font-size: 0.85rem;
+		margin: 0;
+	}
+</style>
