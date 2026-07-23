@@ -204,6 +204,10 @@ onUnmounted(() => {
   color: var(--color-muted);
 }
 
+.masonry-item:hover :deep(img) {
+  transform: scale(1.05);
+}
+
 .lightbox {
   position: fixed;
   inset: 0;

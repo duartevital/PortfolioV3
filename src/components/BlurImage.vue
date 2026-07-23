@@ -38,7 +38,7 @@ const loaded = ref(false);
   height: auto;
   filter: blur(12px);
   opacity: 0;
-  transition: opacity 0.5s ease, filter 0.5s ease;
+  transition: opacity 0.5s ease, filter 0.5s ease, transform 0.3s ease;
 }
 
 .blur-image.loaded img {
