@@ -1,0 +1,9 @@
+:root {
+  --color-bg: #0a0a0a; /* near-black canvas */
+  --color-surface: #141414; /* card / panel backgrounds */
+  --color-border: #232323; /* subtle dividers */
+  --color-text: #e8e8e8; /* primary text */
+  --color-muted: #6b6b6b; /* secondary / metadata text */
+  --color-accent: #6b8f71; /* muted sage green */
+  --color-accent-dim: #4a6450; /* darker accent for hover states */
+}
