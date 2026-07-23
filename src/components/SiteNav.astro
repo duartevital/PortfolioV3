@@ -1,0 +1,58 @@
+---
+const links = [
+  { href: '/', label: 'Gallery' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+];
+
+// Astro's static build emits directory-style URLs (e.g. /about/), so strip
+// any trailing slash before comparing against the un-slashed hrefs below.
+const currentPath =
+  Astro.url.pathname.length > 1 ? Astro.url.pathname.replace(/\/$/, '') : Astro.url.pathname;
+---
+
+<header class="site-nav">
+  <a href="/" class="brand">Vital Photography</a>
+  <nav>
+    {links.map((link) => (
+      <a href={link.href} class:list={['nav-link', { active: currentPath === link.href }]}>
+        {link.label}
+      </a>
+    ))}
+  </nav>
+</header>
+
+<style>
+  .site-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  .brand {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  nav {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .nav-link {
+    color: var(--color-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--color-accent);
+  }
+</style>

@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+	title="About — Vital Photography"
+	description="About Vital Photography — bio, gear, and photographic philosophy."
+>
+	<main class="about">
+		<div class="portrait-placeholder" aria-hidden="true"></div>
+
+		<h1>About</h1>
+		<p>
+			[TODO: replace with your bio — a paragraph or two about who you are, how you got into
+			photography, and what draws you to landscape/nature and street/urban work.]
+		</p>
+
+		<h2>Gear &amp; Philosophy</h2>
+		<p>
+			[TODO: replace with notes on the cameras/lenses you shoot with and your approach to
+			photography — what you're chasing when you pick up a camera.]
+		</p>
+	</main>
+</BaseLayout>
+
+<style>
+	.about {
+		max-width: 640px;
+		margin: 0 auto;
+		padding: 2rem 1.5rem 4rem;
+	}
+
+	.portrait-placeholder {
+		width: 160px;
+		height: 160px;
+		margin: 0 auto 2rem;
+		border-radius: 50%;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+	}
+
+	h1 {
+		margin-bottom: 0.5rem;
+	}
+
+	h2 {
+		margin-top: 2rem;
+		font-size: 1rem;
+		color: var(--color-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	p {
+		line-height: 1.7;
+	}
+</style>

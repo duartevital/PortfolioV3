@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// TODO: replace with the real contact email
+const email = 'hello@example.com';
+---
+
+<BaseLayout title="Contact — Vital Photography" description="Get in touch with Vital Photography.">
+	<main class="contact">
+		<h1>Contact</h1>
+		<p>For prints, licensing, or just to say hello:</p>
+		<a class="email" href={`mailto:${email}`}>{email}</a>
+	</main>
+</BaseLayout>
+
+<style>
+	.contact {
+		max-width: 480px;
+		margin: 0 auto;
+		padding: 4rem 1.5rem;
+		text-align: center;
+	}
+
+	h1 {
+		margin-bottom: 1rem;
+	}
+
+	p {
+		color: var(--color-muted);
+		margin-bottom: 1.5rem;
+	}
+
+	.email {
+		font-size: 1.25rem;
+		color: var(--color-accent);
+		text-decoration: none;
+	}
+
+	.email:hover {
+		color: var(--color-accent-dim);
+	}
+</style>

@@ -1,41 +1,15 @@
 ---
-import '../styles/tokens.css';
+import BaseLayout from '../layouts/BaseLayout.astro';
 import Gallery from '../components/Gallery.vue';
-import { PUBLIC_SITE_URL } from 'astro:env/client';
-
-const description =
-  'Vital Photography — a landscape, nature, street and urban photography portfolio.';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Vital Photography</title>
-
-		<meta name="description" content={description} />
-		<link rel="canonical" href={PUBLIC_SITE_URL} />
-		<meta property="og:type" content="website" />
-		<meta property="og:title" content="Vital Photography" />
-		<meta property="og:description" content={description} />
-		<meta property="og:url" content={PUBLIC_SITE_URL} />
-	</head>
-	<body>
-		<h1 class="site-title">Vital Photography</h1>
-		<Gallery client:load />
-	</body>
-</html>
-
-<style is:global>
-	body {
-		margin: 0;
-		background: var(--color-bg);
-		color: var(--color-text);
-		font-family: system-ui, sans-serif;
-	}
-</style>
+<BaseLayout
+	title="Vital Photography"
+	description="Vital Photography — a landscape, nature, street and urban photography portfolio."
+>
+	<h1 class="site-title">Vital Photography</h1>
+	<Gallery client:load />
+</BaseLayout>
 
 <style>
 	.site-title {
