@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import BlurImage from './BlurImage.vue';
 import { CATEGORIES, type CategorySlug } from '../lib/categories';
-import { getDisplaySrcSet } from '../lib/srcset';
+import { getDisplaySrcSet, getThumbnailSrcSet } from '../lib/srcset';
 
 interface Photo {
   id: string;
@@ -109,7 +109,12 @@ onUnmounted(() => {
         class="masonry-item"
         @click="openLightbox(index)"
       >
-        <BlurImage :src="photo.thumbnailUrl" :alt="photo.title" />
+        <BlurImage
+          :src="photo.thumbnailUrl"
+          :srcset="getThumbnailSrcSet(photo.thumbnailUrl)"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          :alt="photo.title"
+        />
         <figcaption>{{ photo.title }}</figcaption>
       </figure>
     </div>

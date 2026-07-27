@@ -2,13 +2,30 @@
 // the (client) Gallery island - no fs/sharp/env imports here on purpose.
 
 export const THUMBNAIL_WIDTH = 400;
+// Extra thumbnail width for HiDPI/retina screens and wide masonry columns -
+// a flat 400w source gets visibly upscaled/pixelated on either.
+export const EXTRA_THUMBNAIL_WIDTHS = [800];
+
 export const DISPLAY_WIDTH = 1800;
 // Extra, smaller display widths generated purely for a responsive srcset -
 // the canonical `displayUrl` stays DISPLAY_WIDTH (1800) for non-srcset use.
 export const EXTRA_DISPLAY_WIDTHS = [800, 1200];
 
+export function thumbnailVariantFilename(id: string, width: number): string {
+  return width === THUMBNAIL_WIDTH ? `${id}-thumb.webp` : `${id}-thumb-${width}.webp`;
+}
+
 export function displayVariantFilename(id: string, width: number): string {
   return width === DISPLAY_WIDTH ? `${id}-display.webp` : `${id}-display-${width}.webp`;
+}
+
+/** Builds a srcset string for the grid thumbnail from its canonical (400w) URL. */
+export function getThumbnailSrcSet(thumbnailUrl: string): string {
+  const filename = thumbnailUrl.split('/').pop() ?? thumbnailUrl;
+  const id = filename.replace(/-thumb\.webp$/, '');
+  return [THUMBNAIL_WIDTH, ...EXTRA_THUMBNAIL_WIDTHS]
+    .map((width) => `/uploads/${thumbnailVariantFilename(id, width)} ${width}w`)
+    .join(', ');
 }
 
 /** Builds a srcset string for the display image from its canonical (1800w) URL. */

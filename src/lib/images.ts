@@ -2,19 +2,28 @@ import { mkdir, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 import { UPLOADS_DIR } from 'astro:env/server';
-import { THUMBNAIL_WIDTH, DISPLAY_WIDTH, EXTRA_DISPLAY_WIDTHS, displayVariantFilename } from './srcset';
+import {
+  THUMBNAIL_WIDTH,
+  EXTRA_THUMBNAIL_WIDTHS,
+  DISPLAY_WIDTH,
+  EXTRA_DISPLAY_WIDTHS,
+  thumbnailVariantFilename,
+  displayVariantFilename,
+} from './srcset';
 
 const WEBP_QUALITY = 85;
 
 export async function processAndStoreImage(id: string, original: Buffer) {
   await mkdir(UPLOADS_DIR, { recursive: true });
 
-  const thumbnailFilename = `${id}-thumb.webp`;
-
-  await sharp(original)
-    .resize({ width: THUMBNAIL_WIDTH, withoutEnlargement: true })
-    .webp({ quality: WEBP_QUALITY })
-    .toFile(path.join(UPLOADS_DIR, thumbnailFilename));
+  await Promise.all(
+    [THUMBNAIL_WIDTH, ...EXTRA_THUMBNAIL_WIDTHS].map((width) =>
+      sharp(original)
+        .resize({ width, withoutEnlargement: true })
+        .webp({ quality: WEBP_QUALITY })
+        .toFile(path.join(UPLOADS_DIR, thumbnailVariantFilename(id, width)))
+    )
+  );
 
   await Promise.all(
     [...EXTRA_DISPLAY_WIDTHS, DISPLAY_WIDTH].map((width) =>
@@ -26,7 +35,7 @@ export async function processAndStoreImage(id: string, original: Buffer) {
   );
 
   return {
-    thumbnailUrl: `/uploads/${thumbnailFilename}`,
+    thumbnailUrl: `/uploads/${thumbnailVariantFilename(id, THUMBNAIL_WIDTH)}`,
     displayUrl: `/uploads/${displayVariantFilename(id, DISPLAY_WIDTH)}`,
   };
 }
@@ -34,7 +43,7 @@ export async function processAndStoreImage(id: string, original: Buffer) {
 export async function deleteStoredImage(thumbnailUrl: string) {
   const id = path.basename(thumbnailUrl).replace(/-thumb\.webp$/, '');
   const filenames = [
-    path.basename(thumbnailUrl),
+    ...[THUMBNAIL_WIDTH, ...EXTRA_THUMBNAIL_WIDTHS].map((width) => thumbnailVariantFilename(id, width)),
     ...[...EXTRA_DISPLAY_WIDTHS, DISPLAY_WIDTH].map((width) => displayVariantFilename(id, width)),
   ];
 
