@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Gallery from '../components/Gallery.vue';
+import { GENRES, GENRE_SLUGS, type GenreSlug } from '../lib/categories';
+
+export function getStaticPaths() {
+  return GENRE_SLUGS.map((genre) => ({ params: { genre } }));
+}
+
+const { genre } = Astro.params as { genre: GenreSlug };
+const { label, description } = GENRES[genre];
+---
+
+<BaseLayout title={`${label} — Vital Photography`} description={description}>
+  <h1 class="site-title">{label}</h1>
+  <Gallery genre={genre} client:load />
+</BaseLayout>
+
+<style>
+  .site-title {
+    text-align: center;
+    padding: 2rem 1.5rem 0;
+    margin: 0;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+</style>

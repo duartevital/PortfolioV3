@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { actions } from 'astro:actions';
-import { CATEGORIES, type CategorySlug } from '../lib/categories';
+import { CATEGORIES, GENRES, genreOf, type CategorySlug } from '../lib/categories';
 
 interface Photo {
   id: string;
@@ -140,7 +140,9 @@ async function move(index: number, direction: -1 | 1) {
         <input ref="fileInput" type="file" accept="image/*" required />
         <input v-model="uploadForm.title" type="text" placeholder="Title" required />
         <select v-model="uploadForm.category">
-          <option v-for="(label, slug) in CATEGORIES" :key="slug" :value="slug">{{ label }}</option>
+          <optgroup v-for="(genre, genreSlug) in GENRES" :key="genreSlug" :label="genre.label">
+            <option v-for="(label, slug) in genre.categories" :key="slug" :value="slug">{{ label }}</option>
+          </optgroup>
         </select>
         <textarea v-model="uploadForm.description" placeholder="Description (optional)"></textarea>
         <input v-model="uploadForm.shootDate" type="date" />
@@ -158,7 +160,7 @@ async function move(index: number, direction: -1 | 1) {
 
         <div v-if="editingId !== photo.id" class="photo-info">
           <strong>{{ photo.title }}</strong>
-          <span class="muted">{{ CATEGORIES[photo.category] }}</span>
+          <span class="muted">{{ GENRES[genreOf(photo.category)].label }} — {{ CATEGORIES[photo.category] }}</span>
           <span class="muted" v-if="!photo.visible">Hidden</span>
           <div class="actions">
             <button type="button" @click="move(index, -1)" :disabled="index === 0">↑</button>
@@ -171,7 +173,9 @@ async function move(index: number, direction: -1 | 1) {
         <form v-else class="edit-form" @submit.prevent="saveEdit(photo.id)">
           <input v-model="editForm.title" type="text" required />
           <select v-model="editForm.category">
-            <option v-for="(label, slug) in CATEGORIES" :key="slug" :value="slug">{{ label }}</option>
+            <optgroup v-for="(genre, genreSlug) in GENRES" :key="genreSlug" :label="genre.label">
+              <option v-for="(label, slug) in genre.categories" :key="slug" :value="slug">{{ label }}</option>
+            </optgroup>
           </select>
           <textarea v-model="editForm.description"></textarea>
           <input v-model="editForm.shootDate" type="date" />

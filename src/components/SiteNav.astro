@@ -1,6 +1,9 @@
 ---
+import { GENRES, GENRE_SLUGS } from '../lib/categories';
+
 const links = [
-  { href: '/', label: 'Gallery' },
+  { href: '/', label: 'Home' },
+  ...GENRE_SLUGS.map((genre) => ({ href: `/${genre}`, label: GENRES[genre].label })),
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];
