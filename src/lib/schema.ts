@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 import type { CategorySlug } from './categories';
 
 export const photos = sqliteTable('photos', {
@@ -13,6 +13,13 @@ export const photos = sqliteTable('photos', {
   thumbnailUrl: text('thumbnail_url').notNull(), // /uploads/<id>-thumb.webp
   displayUrl: text('display_url').notNull(), // /uploads/<id>-display.webp
   createdAt: text('created_at').notNull(), // ISO 8601 datetime
+  // Camera settings read from the original's EXIF on upload (null when absent)
+  camera: text('camera'),
+  lens: text('lens'),
+  focalLength: real('focal_length'), // mm
+  aperture: real('aperture'), // f-number
+  exposureTime: real('exposure_time'), // seconds
+  iso: integer('iso'),
 });
 
 export type Photo = typeof photos.$inferSelect;

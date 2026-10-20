@@ -111,8 +111,17 @@ export const photos = sqliteTable('photos', {
   thumbnailUrl: text('thumbnail_url').notNull(),      // /uploads/<id>-thumb.webp
   displayUrl:   text('display_url').notNull(),        // /uploads/<id>-display.webp
   createdAt:    text('created_at').notNull(),         // ISO 8601 datetime
+  // Camera settings, read server-side from the original's EXIF on upload (all nullable)
+  camera:       text('camera'),                       // "Make Model", brand not doubled
+  lens:         text('lens'),
+  focalLength:  real('focal_length'),                 // mm
+  aperture:     real('aperture'),                     // f-number
+  exposureTime: real('exposure_time'),                // seconds
+  iso:          integer('iso'),
 });
 ```
+
+The lightbox shows the camera settings as one muted line under the caption (`Camera · Lens · 35mm · f/2.8 · 1/250s · ISO 400`), skipping any missing part. sharp strips EXIF from the WebP derivatives and originals aren't kept, so photos uploaded before this was added have no camera line.
 
 Public JSON shape returned to the gallery matches these fields (camelCase).
 
@@ -140,7 +149,7 @@ Images are served by `src/pages/uploads/[...file].ts`, reading from the volume a
 
 - **Reads (public):** the gallery loads visible photos ordered by `order`. Do this in the page's server frontmatter (prerender build reads the DB) or a small endpoint if you prefer runtime.
 - **Mutations (admin, via Astro Actions):**
-  - `uploadPhoto(file, metadata)` → runs the sharp pipeline, inserts row
+  - `uploadPhoto(file, metadata)` → runs the sharp pipeline, reads camera EXIF (`src/lib/exif.ts`), inserts row
   - `updatePhoto(id, metadata)` → edits title/category/description/shootDate/visible
   - `setFeatured(id, featured)` → toggles whether a photo appears in the homepage highlights
   - `reorderPhotos(orderedIds[])`

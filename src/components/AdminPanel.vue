@@ -15,6 +15,12 @@ interface Photo {
   thumbnailUrl: string;
   displayUrl: string;
   createdAt: string;
+  camera: string | null;
+  lens: string | null;
+  focalLength: number | null;
+  aperture: number | null;
+  exposureTime: number | null;
+  iso: number | null;
 }
 
 const props = defineProps<{

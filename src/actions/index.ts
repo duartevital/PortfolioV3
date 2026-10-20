@@ -5,6 +5,7 @@ import { db } from '../lib/db';
 import { photos } from '../lib/schema';
 import { createSessionCookie, requireAuth, verifyPassword, SESSION_COOKIE_NAME } from '../lib/auth';
 import { processAndStoreImage, deleteStoredImage } from '../lib/images';
+import { readCameraSettings } from '../lib/exif';
 import { CATEGORIES, type CategorySlug } from '../lib/categories';
 
 const categorySlugs = Object.keys(CATEGORIES) as [CategorySlug, ...CategorySlug[]];
@@ -42,7 +43,10 @@ const uploadPhoto = defineAction({
 
     const id = crypto.randomUUID();
     const buffer = Buffer.from(await file.arrayBuffer());
-    const { thumbnailUrl, displayUrl } = await processAndStoreImage(id, buffer);
+    const [{ thumbnailUrl, displayUrl }, cameraSettings] = await Promise.all([
+      processAndStoreImage(id, buffer),
+      readCameraSettings(buffer),
+    ]);
 
     const [{ nextOrder }] = await db
       .select({ nextOrder: sql<number>`coalesce(max(${photos.order}), -1) + 1` })
@@ -59,6 +63,7 @@ const uploadPhoto = defineAction({
       thumbnailUrl,
       displayUrl,
       createdAt: new Date().toISOString(),
+      ...cameraSettings,
     });
 
     return { id };
