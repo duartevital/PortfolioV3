@@ -17,6 +17,12 @@ interface Photo {
   width: number | null;
   height: number | null;
   createdAt: string;
+  camera: string | null;
+  lens: string | null;
+  focalLength: number | null;
+  aperture: number | null;
+  exposureTime: number | null;
+  iso: number | null;
 }
 
 const props = defineProps<{

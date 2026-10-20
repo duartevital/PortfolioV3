@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 import type { CategorySlug } from './categories';
 
 export const photos = sqliteTable('photos', {
@@ -15,6 +15,12 @@ export const photos = sqliteTable('photos', {
   width: integer('width'),
   height: integer('height'),
   createdAt: text('created_at').notNull(), // ISO 8601 datetime
+  camera: text('camera'),
+  lens: text('lens'),
+  focalLength: real('focal_length'),
+  aperture: real('aperture'),
+  exposureTime: real('exposure_time'),
+  iso: integer('iso'),
 });
 
 export type Photo = typeof photos.$inferSelect;

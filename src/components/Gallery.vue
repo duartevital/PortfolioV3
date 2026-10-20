@@ -15,6 +15,12 @@ interface Photo {
   displayUrl: string;
   width: number | null;
   height: number | null;
+  camera: string | null;
+  lens: string | null;
+  focalLength: number | null;
+  aperture: number | null;
+  exposureTime: number | null;
+  iso: number | null;
 }
 
 type Filter = 'all' | CategorySlug;
@@ -69,6 +75,25 @@ function lightboxImageStyle(photo: Photo) {
 const openPhoto = computed(() =>
   openIndex.value !== null ? filteredPhotos.value[openIndex.value] : null
 );
+
+function formatShutter(seconds: number) {
+  return seconds < 1 ? `1/${Math.round(1 / seconds)}s` : `${Number(seconds.toFixed(1))}s`;
+}
+
+const cameraSettings = computed(() => {
+  const photo = openPhoto.value;
+  if (!photo) return '';
+  return [
+    photo.camera,
+    photo.lens,
+    photo.focalLength && `${Math.round(photo.focalLength)}mm`,
+    photo.aperture && `f/${Number(photo.aperture.toFixed(1))}`,
+    photo.exposureTime && formatShutter(photo.exposureTime),
+    photo.iso && `ISO ${photo.iso}`,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+});
 
 function selectFilter(filter: Filter) {
   activeFilter.value = filter;
@@ -176,6 +201,7 @@ onUnmounted(() => {
           <h2>{{ openPhoto.title }}</h2>
           <p v-if="openPhoto.description">{{ openPhoto.description }}</p>
           <p v-if="openPhoto.shootDate" class="meta">{{ openPhoto.shootDate }}</p>
+          <p v-if="cameraSettings" class="meta camera-settings">{{ cameraSettings }}</p>
         </figcaption>
       </figure>
     </div>
@@ -298,6 +324,12 @@ onUnmounted(() => {
 .lightbox-content .meta {
   color: var(--color-muted);
   font-size: 0.85rem;
+}
+
+.lightbox-content .camera-settings {
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  margin-top: 0.25rem;
 }
 
 .lightbox-close,
