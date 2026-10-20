@@ -215,7 +215,7 @@ weddings
 | Layer | Cache-Control |
 |---|---|
 | Uploaded images (`/uploads/*`) | `public, max-age=31536000, immutable` |
-| Public gallery data | `public, max-age=60, stale-while-revalidate=300` |
+| Public gallery data (`/api/photos.json`) | `no-cache` — revalidated on every load so new uploads appear immediately |
 | Admin routes | no-store (auth-gated) |
 
 ---
