@@ -43,7 +43,7 @@ const uploadPhoto = defineAction({
 
     const id = crypto.randomUUID();
     const buffer = Buffer.from(await file.arrayBuffer());
-    const [{ thumbnailUrl, displayUrl }, cameraSettings] = await Promise.all([
+    const [{ thumbnailUrl, displayUrl, width, height }, cameraSettings] = await Promise.all([
       processAndStoreImage(id, buffer),
       readCameraSettings(buffer),
     ]);
@@ -62,6 +62,8 @@ const uploadPhoto = defineAction({
       order: nextOrder,
       thumbnailUrl,
       displayUrl,
+      width,
+      height,
       createdAt: new Date().toISOString(),
       ...cameraSettings,
     });

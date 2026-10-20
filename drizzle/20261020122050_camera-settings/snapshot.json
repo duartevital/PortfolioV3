@@ -1,9 +1,9 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "1c9e002f-4694-4c49-94a1-dcd6d587f393",
+  "id": "9c6de0a0-9b99-41a7-985e-7028e6b23056",
   "prevIds": [
-    "c87006ad-f796-4ef7-91c7-2ca4fdd48489"
+    "8384adb3-3e31-46f4-90ee-882aa0624c89"
   ],
   "ddl": [
     {
@@ -107,6 +107,26 @@
       "default": null,
       "generated": null,
       "name": "display_url",
+      "entityType": "columns",
+      "table": "photos"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "width",
+      "entityType": "columns",
+      "table": "photos"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "height",
       "entityType": "columns",
       "table": "photos"
     },

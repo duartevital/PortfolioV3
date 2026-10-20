@@ -25,7 +25,7 @@ export async function processAndStoreImage(id: string, original: Buffer) {
     )
   );
 
-  await Promise.all(
+  const displayOutputs = await Promise.all(
     [...EXTRA_DISPLAY_WIDTHS, DISPLAY_WIDTH].map((width) =>
       sharp(original)
         .resize({ width, withoutEnlargement: true })
@@ -33,11 +33,19 @@ export async function processAndStoreImage(id: string, original: Buffer) {
         .toFile(path.join(UPLOADS_DIR, displayVariantFilename(id, width)))
     )
   );
+  const { width, height } = displayOutputs[displayOutputs.length - 1];
 
   return {
     thumbnailUrl: `/uploads/${thumbnailVariantFilename(id, THUMBNAIL_WIDTH)}`,
     displayUrl: `/uploads/${displayVariantFilename(id, DISPLAY_WIDTH)}`,
+    width,
+    height,
   };
+}
+
+export async function readStoredImageSize(displayUrl: string) {
+  const { width, height } = await sharp(path.join(UPLOADS_DIR, path.basename(displayUrl))).metadata();
+  return { width, height };
 }
 
 export async function deleteStoredImage(thumbnailUrl: string) {
