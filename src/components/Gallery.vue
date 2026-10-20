@@ -73,7 +73,6 @@ function formatShutter(seconds: number) {
   return seconds < 1 ? `1/${Math.round(1 / seconds)}s` : `${Number(seconds.toFixed(1))}s`;
 }
 
-// e.g. "Sony ILCE-7M3 · FE 24-70mm F2.8 GM · 35mm · f/2.8 · 1/250s · ISO 400"
 const cameraSettings = computed(() => {
   const photo = openPhoto.value;
   if (!photo) return '';

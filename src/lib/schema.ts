@@ -13,12 +13,11 @@ export const photos = sqliteTable('photos', {
   thumbnailUrl: text('thumbnail_url').notNull(), // /uploads/<id>-thumb.webp
   displayUrl: text('display_url').notNull(), // /uploads/<id>-display.webp
   createdAt: text('created_at').notNull(), // ISO 8601 datetime
-  // Camera settings read from the original's EXIF on upload (null when absent)
   camera: text('camera'),
   lens: text('lens'),
-  focalLength: real('focal_length'), // mm
-  aperture: real('aperture'), // f-number
-  exposureTime: real('exposure_time'), // seconds
+  focalLength: real('focal_length'),
+  aperture: real('aperture'),
+  exposureTime: real('exposure_time'),
   iso: integer('iso'),
 });
 
