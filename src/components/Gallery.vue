@@ -13,6 +13,8 @@ interface Photo {
   featured: boolean;
   thumbnailUrl: string;
   displayUrl: string;
+  width: number | null;
+  height: number | null;
 }
 
 type Filter = 'all' | CategorySlug;
@@ -57,6 +59,11 @@ const filteredPhotos = computed(() => {
 
 function genreLabel(photo: Photo) {
   return GENRES[genreOf(photo.category)].label;
+}
+
+function lightboxImageStyle(photo: Photo) {
+  if (!photo.width || !photo.height) return undefined;
+  return { '--lightbox-width': `min(90vw, 1200px, calc(75vh * ${photo.width / photo.height}))` };
 }
 
 const openPhoto = computed(() =>
@@ -140,6 +147,8 @@ onUnmounted(() => {
           :srcset="getThumbnailSrcSet(photo.thumbnailUrl)"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           :alt="photo.title"
+          :width="photo.width"
+          :height="photo.height"
         />
         <figcaption>
           {{ photo.title }}
@@ -159,6 +168,9 @@ onUnmounted(() => {
           :srcset="getDisplaySrcSet(openPhoto.displayUrl)"
           sizes="90vw"
           :alt="openPhoto.title"
+          :width="openPhoto.width"
+          :height="openPhoto.height"
+          :style="lightboxImageStyle(openPhoto)"
         />
         <figcaption>
           <h2>{{ openPhoto.title }}</h2>
@@ -272,7 +284,8 @@ onUnmounted(() => {
 
 .lightbox-content :deep(img) {
   max-height: 75vh;
-  width: auto;
+  width: var(--lightbox-width, auto);
+  height: auto;
   max-width: 100%;
 }
 

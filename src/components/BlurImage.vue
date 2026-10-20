@@ -6,6 +6,8 @@ defineProps<{
   alt: string;
   srcset?: string;
   sizes?: string;
+  width?: number | null;
+  height?: number | null;
 }>();
 
 const loaded = ref(false);
@@ -18,6 +20,8 @@ const loaded = ref(false);
       :srcset="srcset"
       :sizes="sizes"
       :alt="alt"
+      :width="width ?? undefined"
+      :height="height ?? undefined"
       loading="lazy"
       decoding="async"
       @load="loaded = true"
