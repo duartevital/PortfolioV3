@@ -5,8 +5,10 @@ import { db } from '../lib/db';
 import { photos } from '../lib/schema';
 import { createSessionCookie, requireAuth, verifyPassword, SESSION_COOKIE_NAME } from '../lib/auth';
 import { processAndStoreImage, deleteStoredImage } from '../lib/images';
+import { CATEGORIES, type CategorySlug } from '../lib/categories';
 
-const categorySchema = z.enum(['landscape-nature', 'street-urban']);
+const categorySlugs = Object.keys(CATEGORIES) as [CategorySlug, ...CategorySlug[]];
+const categorySchema = z.enum(categorySlugs);
 
 const login = defineAction({
   accept: 'form',

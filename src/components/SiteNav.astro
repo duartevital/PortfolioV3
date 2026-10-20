@@ -1,6 +1,9 @@
 ---
+import { GENRES, GENRE_SLUGS } from '../lib/categories';
+
 const links = [
-  { href: '/', label: 'Gallery' },
+  { href: '/', label: 'Home' },
+  ...GENRE_SLUGS.map((genre) => ({ href: `/${genre}`, label: GENRES[genre].label })),
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];
@@ -25,8 +28,10 @@ const currentPath =
 <style>
   .site-nav {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 0.75rem 1.5rem;
     max-width: 1200px;
     margin: 0 auto;
     padding: 1.5rem;
@@ -41,7 +46,8 @@ const currentPath =
 
   nav {
     display: flex;
-    gap: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
   }
 
   .nav-link {
@@ -54,5 +60,18 @@ const currentPath =
   .nav-link:hover,
   .nav-link.active {
     color: var(--color-accent);
+  }
+
+  @media (max-width: 480px) {
+    .site-nav {
+      justify-content: center;
+      text-align: center;
+      padding: 1.25rem 1rem;
+    }
+
+    nav {
+      justify-content: center;
+      gap: 0.5rem 1rem;
+    }
   }
 </style>

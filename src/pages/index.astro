@@ -5,10 +5,10 @@ import Gallery from '../components/Gallery.vue';
 
 <BaseLayout
 	title="Vital Photography"
-	description="Vital Photography — a landscape, nature, street and urban photography portfolio."
+	description="Vital Photography — a travel, dog and wedding photography portfolio."
 >
 	<h1 class="site-title">Vital Photography</h1>
-	<Gallery client:load />
+	<Gallery highlightsPerGenre={4} client:load />
 </BaseLayout>
 
 <style>

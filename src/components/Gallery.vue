@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import BlurImage from './BlurImage.vue';
-import { CATEGORIES, type CategorySlug } from '../lib/categories';
+import { GENRES, genreOf, type CategorySlug, type GenreSlug } from '../lib/categories';
 import { getDisplaySrcSet, getThumbnailSrcSet } from '../lib/srcset';
 
 interface Photo {
@@ -16,24 +16,52 @@ interface Photo {
 
 type Filter = 'all' | CategorySlug;
 
+const props = defineProps<{
+  genre?: GenreSlug;
+  highlightsPerGenre?: number;
+}>();
+
 const photos = ref<Photo[]>([]);
 const loading = ref(true);
 const activeFilter = ref<Filter>('all');
 const openIndex = ref<number | null>(null);
 
-const filters: { value: Filter; label: string }[] = [
+const scopedCategories = computed(() => (props.genre ? GENRES[props.genre].categories : {}));
+
+const filters = computed<{ value: Filter; label: string }[]>(() => [
   { value: 'all', label: 'All' },
-  ...(Object.entries(CATEGORIES) as [CategorySlug, string][]).map(([value, label]) => ({
+  ...(Object.entries(scopedCategories.value) as [CategorySlug, string][]).map(([value, label]) => ({
     value,
     label,
   })),
-];
+]);
 
-const filteredPhotos = computed(() =>
-  activeFilter.value === 'all'
-    ? photos.value
-    : photos.value.filter((photo) => photo.category === activeFilter.value)
+const genreScopedPhotos = computed(() =>
+  props.genre ? photos.value.filter((photo) => genreOf(photo.category) === props.genre) : photos.value
 );
+
+const highlightPhotos = computed(() => {
+  if (!props.highlightsPerGenre) return [];
+  const perGenre = new Map<GenreSlug, Photo[]>();
+  for (const photo of photos.value) {
+    const genre = genreOf(photo.category);
+    const bucket = perGenre.get(genre) ?? [];
+    if (bucket.length < props.highlightsPerGenre) bucket.push(photo);
+    perGenre.set(genre, bucket);
+  }
+  return (Object.keys(GENRES) as GenreSlug[]).flatMap((genre) => perGenre.get(genre) ?? []);
+});
+
+const filteredPhotos = computed(() => {
+  if (props.highlightsPerGenre) return highlightPhotos.value;
+  return activeFilter.value === 'all'
+    ? genreScopedPhotos.value
+    : genreScopedPhotos.value.filter((photo) => photo.category === activeFilter.value);
+});
+
+function genreLabel(photo: Photo) {
+  return GENRES[genreOf(photo.category)].label;
+}
 
 const openPhoto = computed(() =>
   openIndex.value !== null ? filteredPhotos.value[openIndex.value] : null
@@ -86,7 +114,7 @@ onUnmounted(() => {
 
 <template>
   <div class="gallery">
-    <nav class="filter-bar">
+    <nav v-if="!highlightsPerGenre" class="filter-bar">
       <button
         v-for="filter in filters"
         :key="filter.value"
@@ -100,7 +128,9 @@ onUnmounted(() => {
     </nav>
 
     <p v-if="loading" class="status">Loading…</p>
-    <p v-else-if="filteredPhotos.length === 0" class="status">No photos yet.</p>
+    <p v-else-if="filteredPhotos.length === 0" class="status">
+      {{ genre ? 'No photos in this genre yet.' : 'No photos yet.' }}
+    </p>
 
     <div v-else class="masonry">
       <figure
@@ -115,7 +145,10 @@ onUnmounted(() => {
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           :alt="photo.title"
         />
-        <figcaption>{{ photo.title }}</figcaption>
+        <figcaption>
+          {{ photo.title }}
+          <span v-if="highlightsPerGenre" class="genre-tag">{{ genreLabel(photo) }}</span>
+        </figcaption>
       </figure>
     </div>
 
@@ -207,6 +240,16 @@ onUnmounted(() => {
   padding: 0.5rem 0.25rem;
   font-size: 0.85rem;
   color: var(--color-muted);
+}
+
+.genre-tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  color: var(--color-accent);
 }
 
 .masonry-item:hover :deep(img) {

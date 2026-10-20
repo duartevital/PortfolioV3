@@ -8,7 +8,13 @@ Project spec and working guide for Claude Code and contributors. This is a **gre
 
 Personal photography portfolio ("Vital Photography") — a dark, moody, masonry-grid gallery with a lightbox and a single-user, password-protected admin panel for uploading and managing photos. The owner is a semi-professional hobbyist photographer. Low traffic, self-hosted.
 
-**Genres / filter categories:** Landscape / Nature · Street / Urban
+**Genres (top-level nav, one page each):** Travel · Dogs · Weddings. Each genre has its own set of category pills:
+
+- **Travel:** Landscape / Nature · Street / Urban
+- **Dogs:** Portraits · Action
+- **Weddings:** Ceremony · Reception · Details
+
+Genre is *derived* from the category slug (every slug belongs to exactly one genre — see `src/lib/categories.ts`), so there is no separate `genre` column in the database. The homepage (`/`) is not a genre page — it shows a curated "highlights" grid (top-ordered photos per genre) plus links into the three genre pages.
 
 **Why this rebuild:** the previous version worked but ran as *two* services in two languages (a Nuxt SPA + a separate C# Web API) for what is essentially a single-user content site. This rebuild collapses everything into **one full-stack Astro app, one service, one deploy.**
 
@@ -37,7 +43,7 @@ Astro renders most of the site to static HTML (near-zero JS) and hydrates only s
 - **Prerendered (static):** `/` gallery shell, `/about`, `/contact`. SEO-friendly, fast.
 - **On-demand (SSR):** `/admin`, `/admin/login`, and all API/Action routes.
 - **Islands (Vue, hydrated):**
-  - **`<Gallery>`** — a *single* island containing the masonry grid **+** filter bar **+** lightbox. Keep these together in one island so their shared state (active filter, open photo) lives in ordinary Vue reactivity. Do **not** split them into three islands.
+  - **`<Gallery>`** — a *single* island containing the masonry grid **+** filter bar **+** lightbox. Keep these together in one island so their shared state (active filter, open photo) lives in ordinary Vue reactivity. Do **not** split them into three islands. It's reused across pages via props: a `genre` prop scopes it to one genre page (grid + that genre's category pills), and a `highlightsPerGenre` prop switches it to homepage mode (no pills, top N photos per genre, each captioned with its genre).
   - **`<AdminPanel>`** — a second island for upload/reorder/metadata/delete.
   - Everything else is static `.astro`.
 
@@ -53,7 +59,8 @@ Astro renders most of the site to static HTML (near-zero JS) and hydrates only s
 /
 ├─ src/
 │  ├─ pages/
-│  │  ├─ index.astro            # public gallery (prerendered shell + <Gallery> island)
+│  │  ├─ index.astro            # homepage: highlights shell + <Gallery highlightsPerGenre> island
+│  │  ├─ [genre].astro          # one prerendered page per genre (travel/dogs/weddings)
 │  │  ├─ about.astro
 │  │  ├─ contact.astro
 │  │  ├─ admin/
@@ -71,6 +78,7 @@ Astro renders most of the site to static HTML (near-zero JS) and hydrates only s
 │  ├─ lib/
 │  │  ├─ db.ts                  # Drizzle client
 │  │  ├─ schema.ts              # Drizzle schema
+│  │  ├─ categories.ts          # GENRES map (genre → its category slugs), genreOf() lookup
 │  │  ├─ images.ts              # sharp pipeline (WebP + resize)
 │  │  └─ auth.ts                # cookie session sign/verify, bcrypt check
 │  ├─ middleware.ts             # guards /admin + admin actions
@@ -94,7 +102,7 @@ One table, `photos` (Drizzle schema):
 export const photos = sqliteTable('photos', {
   id:           text('id').primaryKey(),              // uuid
   title:        text('title').notNull(),
-  category:     text('category').notNull(),           // 'landscape-nature' | 'street-urban'
+  category:     text('category').notNull(),           // one of the slugs in src/lib/categories.ts (genre is derived from this, not stored)
   description:  text('description'),
   shootDate:    text('shoot_date'),                   // ISO 8601 date
   visible:      integer('visible', { mode: 'boolean' }).notNull().default(true),
@@ -155,7 +163,8 @@ Single user. No third-party auth service.
 
 | Route | Rendering | Description |
 |---|---|---|
-| `/` | Static shell + Vue island | Public gallery — masonry, filter, lightbox |
+| `/` | Static shell + Vue island | Homepage — curated highlights grid (top photos per genre) + links into genre pages |
+| `/travel`, `/dogs`, `/weddings` | Static shell + Vue island (one route, `getStaticPaths` over `GENRE_SLUGS`) | Per-genre gallery — masonry, category pills scoped to that genre, lightbox |
 | `/about` | Static | Bio, gear/philosophy, portrait |
 | `/contact` | Static | Email display only |
 | `/admin` | SSR (guarded) | Admin panel island |
@@ -182,11 +191,21 @@ Styling: Tailwind (via `@astrojs/tailwind`) is fine and matches v1, or plain CSS
 
 ---
 
-## Image Categories (Slug → Display)
+## Image Categories (Genre → Slug → Display)
+
+Defined in `src/lib/categories.ts` (`GENRES`) — the single source of truth for genre pages, nav, the admin category picker, and the Actions `category` enum.
 
 ```
-landscape-nature  →  Landscape / Nature
-street-urban      →  Street / Urban
+travel
+  landscape-nature  →  Landscape / Nature
+  street-urban      →  Street / Urban
+dogs
+  dog-portraits     →  Portraits
+  dog-action        →  Action
+weddings
+  wedding-ceremony   →  Ceremony
+  wedding-reception  →  Reception
+  wedding-details    →  Details
 ```
 
 ---
