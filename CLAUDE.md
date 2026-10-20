@@ -8,10 +8,10 @@ Project spec and working guide for Claude Code and contributors. This is a **gre
 
 Personal photography portfolio ("Vital Photography") — a dark, moody, masonry-grid gallery with a lightbox and a single-user, password-protected admin panel for uploading and managing photos. The owner is a semi-professional hobbyist photographer. Low traffic, self-hosted.
 
-**Genres (top-level nav, one page each):** Travel · Dogs · Weddings. Each genre has its own set of category pills:
+**Genres (top-level nav, one page each):** Travel · Pets · Weddings. Each genre has its own set of category pills:
 
 - **Travel:** Landscape / Nature · Street / Urban
-- **Dogs:** Portraits · Action
+- **Pets:** Portraits · Action
 - **Weddings:** Ceremony · Reception · Details
 
 Genre is *derived* from the category slug (every slug belongs to exactly one genre — see `src/lib/categories.ts`), so there is no separate `genre` column in the database. The homepage (`/`) is not a genre page — it shows a curated "highlights" grid (top-ordered photos per genre) plus links into the three genre pages.
@@ -60,7 +60,7 @@ Astro renders most of the site to static HTML (near-zero JS) and hydrates only s
 ├─ src/
 │  ├─ pages/
 │  │  ├─ index.astro            # homepage: highlights shell + <Gallery highlightsPerGenre> island
-│  │  ├─ [genre].astro          # one prerendered page per genre (travel/dogs/weddings)
+│  │  ├─ [genre].astro          # one prerendered page per genre (travel/pets/weddings)
 │  │  ├─ about.astro
 │  │  ├─ contact.astro
 │  │  ├─ admin/
@@ -164,7 +164,7 @@ Single user. No third-party auth service.
 | Route | Rendering | Description |
 |---|---|---|
 | `/` | Static shell + Vue island | Homepage — curated highlights grid (top photos per genre) + links into genre pages |
-| `/travel`, `/dogs`, `/weddings` | Static shell + Vue island (one route, `getStaticPaths` over `GENRE_SLUGS`) | Per-genre gallery — masonry, category pills scoped to that genre, lightbox |
+| `/travel`, `/pets`, `/weddings` | Static shell + Vue island (one route, `getStaticPaths` over `GENRE_SLUGS`) | Per-genre gallery — masonry, category pills scoped to that genre, lightbox |
 | `/about` | Static | Bio, gear/philosophy, portrait |
 | `/contact` | Static | Email display only |
 | `/admin` | SSR (guarded) | Admin panel island |
@@ -199,9 +199,9 @@ Defined in `src/lib/categories.ts` (`GENRES`) — the single source of truth for
 travel
   landscape-nature  →  Landscape / Nature
   street-urban      →  Street / Urban
-dogs
-  dog-portraits     →  Portraits
-  dog-action        →  Action
+pets
+  pet-portraits     →  Portraits
+  pet-action        →  Action
 weddings
   wedding-ceremony   →  Ceremony
   wedding-reception  →  Reception

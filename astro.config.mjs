@@ -21,6 +21,13 @@ export default defineConfig({
     mode: 'standalone'
   }),
 
+  vite: {
+    // exifr is only reached through a dynamic import in AdminPanel, so Vite's
+    // dev server would otherwise discover it late and force a mid-session
+    // re-optimize (504 "Outdated Optimize Dep") that breaks the first parse.
+    optimizeDeps: { include: ['exifr'] },
+  },
+
   security: {
     // Default is 1 MB, too small for photo uploads.
     actionBodySizeLimit: 30 * 1024 * 1024,

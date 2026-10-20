@@ -32,6 +32,34 @@ const uploadForm = ref({
 const uploading = ref(false);
 const uploadError = ref<string | null>(null);
 
+const metaNote = ref<string | null>(null);
+
+function metaText(value: unknown): string {
+  const text = value && typeof value === 'object' ? (value as { value?: unknown }).value : value;
+  return typeof text === 'string' ? text.trim() : '';
+}
+
+function toLocalDateString(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+async function onFileChange() {
+  const file = fileInput.value?.files?.[0];
+  if (!file) return;
+
+  const meta = await import('exifr')
+    .then(({ default: exifr }) => exifr.parse(file, { iptc: true, xmp: true }))
+    .catch(() => undefined);
+  const taken = meta?.DateTimeOriginal instanceof Date ? meta.DateTimeOriginal : undefined;
+
+  const form = uploadForm.value;
+  form.title ||= metaText(meta?.title);
+  form.description ||= metaText(meta?.description);
+  form.shootDate = toLocalDateString(taken ?? new Date(file.lastModified));
+  metaNote.value = taken ? null : 'No “date taken” in this file — used its modified date instead.';
+}
+
 const editingId = ref<string | null>(null);
 const editForm = ref({
   title: '',
@@ -137,7 +165,8 @@ async function move(index: number, direction: -1 | 1) {
     <section class="upload">
       <h2>Upload New Photo</h2>
       <form @submit.prevent="submitUpload">
-        <input ref="fileInput" type="file" accept="image/*" required />
+        <input ref="fileInput" type="file" accept="image/*" required @change="onFileChange" />
+        <p v-if="metaNote" class="muted">{{ metaNote }}</p>
         <input v-model="uploadForm.title" type="text" placeholder="Title" required />
         <select v-model="uploadForm.category">
           <optgroup v-for="(genre, genreSlug) in GENRES" :key="genreSlug" :label="genre.label">
