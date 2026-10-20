@@ -61,8 +61,6 @@ function genreLabel(photo: Photo) {
   return GENRES[genreOf(photo.category)].label;
 }
 
-// Largest width that fits the lightbox (max 90vw / 1200px wide, 75vh tall) at the photo's
-// aspect ratio. Fixing it up front stops the lightbox resizing when the image arrives.
 function lightboxImageStyle(photo: Photo) {
   if (!photo.width || !photo.height) return undefined;
   return { '--lightbox-width': `min(90vw, 1200px, calc(75vh * ${photo.width / photo.height}))` };

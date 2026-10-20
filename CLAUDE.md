@@ -252,6 +252,12 @@ docker compose up --build
 
 ---
 
+## Code Style
+
+- Do not add inline comments unless absolutely necessary for understanding the code. Prefer clear names and small functions; put the "why" in the commit message or PR description instead.
+
+---
+
 ## Phased Roadmap
 
 Build in phases; **commit at the end of each phase with a structured message** (owner preference).

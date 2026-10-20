@@ -12,7 +12,7 @@ export const photos = sqliteTable('photos', {
   order: integer('order').notNull().default(0),
   thumbnailUrl: text('thumbnail_url').notNull(), // /uploads/<id>-thumb.webp
   displayUrl: text('display_url').notNull(), // /uploads/<id>-display.webp
-  width: integer('width'), // px of the display image (null only if backfill couldn't read the file)
+  width: integer('width'),
   height: integer('height'),
   createdAt: text('created_at').notNull(), // ISO 8601 datetime
 });

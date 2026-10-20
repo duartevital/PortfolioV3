@@ -33,7 +33,6 @@ export async function processAndStoreImage(id: string, original: Buffer) {
         .toFile(path.join(UPLOADS_DIR, displayVariantFilename(id, width)))
     )
   );
-  // Take dimensions from what sharp actually wrote, so they match what the browser renders.
   const { width, height } = displayOutputs[displayOutputs.length - 1];
 
   return {

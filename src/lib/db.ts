@@ -16,13 +16,9 @@ export const db = drizzle({ connection: { path: dbPath } });
 // migrations at boot. Path is relative to process.cwd() (project root).
 migrate(db, { migrationsFolder: './drizzle' });
 
-// Photos uploaded before width/height were stored: read them from the stored
-// display image once. Rows whose file is missing stay null and are retried next boot.
 for (const photo of await db.select().from(photos).where(isNull(photos.width))) {
   try {
     const { width, height } = await readStoredImageSize(photo.displayUrl);
     await db.update(photos).set({ width, height }).where(eq(photos.id, photo.id));
-  } catch {
-    // file missing or unreadable — the gallery falls back to no reserved size
-  }
+  } catch {}
 }
