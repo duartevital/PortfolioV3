@@ -110,6 +110,8 @@ export const photos = sqliteTable('photos', {
   order:        integer('order').notNull().default(0),
   thumbnailUrl: text('thumbnail_url').notNull(),      // /uploads/<id>-thumb.webp
   displayUrl:   text('display_url').notNull(),        // /uploads/<id>-display.webp
+  width:        integer('width'),                     // px of the display image, from sharp's output at upload
+  height:       integer('height'),                    // (backfilled at boot for older photos; reserves layout space)
   createdAt:    text('created_at').notNull(),         // ISO 8601 datetime
 });
 ```
@@ -128,7 +130,7 @@ On `uploadPhoto`:
    - **thumbnail** — 400 px wide
    - **display** — 1800 px wide
 3. Write both to the uploads volume as `<id>-thumb.webp` / `<id>-display.webp`.
-4. Insert the `photos` row with the two URLs.
+4. Insert the `photos` row with the two URLs and the display image's `width`/`height` (taken from sharp's output info), so the grid and lightbox can reserve space before the image loads.
 
 Images are served by `src/pages/uploads/[...file].ts`, reading from the volume and setting `Cache-Control: public, max-age=31536000, immutable`.
 

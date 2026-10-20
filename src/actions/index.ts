@@ -42,7 +42,7 @@ const uploadPhoto = defineAction({
 
     const id = crypto.randomUUID();
     const buffer = Buffer.from(await file.arrayBuffer());
-    const { thumbnailUrl, displayUrl } = await processAndStoreImage(id, buffer);
+    const { thumbnailUrl, displayUrl, width, height } = await processAndStoreImage(id, buffer);
 
     const [{ nextOrder }] = await db
       .select({ nextOrder: sql<number>`coalesce(max(${photos.order}), -1) + 1` })
@@ -58,6 +58,8 @@ const uploadPhoto = defineAction({
       order: nextOrder,
       thumbnailUrl,
       displayUrl,
+      width,
+      height,
       createdAt: new Date().toISOString(),
     });
 

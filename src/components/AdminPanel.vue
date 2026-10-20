@@ -14,6 +14,8 @@ interface Photo {
   order: number;
   thumbnailUrl: string;
   displayUrl: string;
+  width: number | null;
+  height: number | null;
   createdAt: string;
 }
 
