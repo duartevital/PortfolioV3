@@ -10,6 +10,7 @@ interface Photo {
   description: string | null;
   shootDate: string | null;
   visible: boolean;
+  featured: boolean;
   order: number;
   thumbnailUrl: string;
   displayUrl: string;
@@ -129,6 +130,15 @@ async function saveEdit(id: string) {
   window.location.reload();
 }
 
+async function toggleFeatured(photo: Photo) {
+  const { error } = await actions.setFeatured({ id: photo.id, featured: !photo.featured });
+  if (error) {
+    alert(error.message);
+    return;
+  }
+  photo.featured = !photo.featured;
+}
+
 async function remove(id: string, title: string) {
   if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
   const { error } = await actions.deletePhoto({ id });
@@ -191,9 +201,13 @@ async function move(index: number, direction: -1 | 1) {
           <strong>{{ photo.title }}</strong>
           <span class="muted">{{ GENRES[genreOf(photo.category)].label }} — {{ CATEGORIES[photo.category] }}</span>
           <span class="muted" v-if="!photo.visible">Hidden</span>
+          <span class="featured-tag" v-else-if="photo.featured">On homepage</span>
           <div class="actions">
             <button type="button" @click="move(index, -1)" :disabled="index === 0">↑</button>
             <button type="button" @click="move(index, 1)" :disabled="index === photos.length - 1">↓</button>
+            <button type="button" :class="{ outline: photo.featured }" @click="toggleFeatured(photo)">
+              {{ photo.featured ? 'Remove from homepage' : 'Show on homepage' }}
+            </button>
             <button type="button" @click="startEdit(photo)">Edit</button>
             <button type="button" class="danger" @click="remove(photo.id, photo.title)">Delete</button>
           </div>
@@ -305,6 +319,17 @@ button.danger {
   background: transparent;
   border: 1px solid #7a3b3b;
   color: #d97373;
+}
+
+button.outline {
+  background: transparent;
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+}
+
+.featured-tag {
+  color: var(--color-accent);
+  font-size: 0.85rem;
 }
 
 .photo-row {

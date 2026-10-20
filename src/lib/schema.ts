@@ -8,6 +8,7 @@ export const photos = sqliteTable('photos', {
   description: text('description'),
   shootDate: text('shoot_date'), // ISO 8601 date
   visible: integer('visible', { mode: 'boolean' }).notNull().default(true),
+  featured: integer('featured', { mode: 'boolean' }).notNull().default(false),
   order: integer('order').notNull().default(0),
   thumbnailUrl: text('thumbnail_url').notNull(), // /uploads/<id>-thumb.webp
   displayUrl: text('display_url').notNull(), // /uploads/<id>-display.webp

@@ -10,6 +10,7 @@ interface Photo {
   category: CategorySlug;
   description: string | null;
   shootDate: string | null;
+  featured: boolean;
   thumbnailUrl: string;
   displayUrl: string;
 }
@@ -18,7 +19,7 @@ type Filter = 'all' | CategorySlug;
 
 const props = defineProps<{
   genre?: GenreSlug;
-  highlightsPerGenre?: number;
+  highlights?: boolean;
 }>();
 
 const photos = ref<Photo[]>([]);
@@ -41,19 +42,14 @@ const genreScopedPhotos = computed(() =>
 );
 
 const highlightPhotos = computed(() => {
-  if (!props.highlightsPerGenre) return [];
-  const perGenre = new Map<GenreSlug, Photo[]>();
-  for (const photo of photos.value) {
-    const genre = genreOf(photo.category);
-    const bucket = perGenre.get(genre) ?? [];
-    if (bucket.length < props.highlightsPerGenre) bucket.push(photo);
-    perGenre.set(genre, bucket);
-  }
-  return (Object.keys(GENRES) as GenreSlug[]).flatMap((genre) => perGenre.get(genre) ?? []);
+  const featured = photos.value.filter((photo) => photo.featured);
+  return (Object.keys(GENRES) as GenreSlug[]).flatMap((genre) =>
+    featured.filter((photo) => genreOf(photo.category) === genre)
+  );
 });
 
 const filteredPhotos = computed(() => {
-  if (props.highlightsPerGenre) return highlightPhotos.value;
+  if (props.highlights) return highlightPhotos.value;
   return activeFilter.value === 'all'
     ? genreScopedPhotos.value
     : genreScopedPhotos.value.filter((photo) => photo.category === activeFilter.value);
@@ -114,7 +110,7 @@ onUnmounted(() => {
 
 <template>
   <div class="gallery">
-    <nav v-if="!highlightsPerGenre" class="filter-bar">
+    <nav v-if="!highlights" class="filter-bar">
       <button
         v-for="filter in filters"
         :key="filter.value"
@@ -147,7 +143,7 @@ onUnmounted(() => {
         />
         <figcaption>
           {{ photo.title }}
-          <span v-if="highlightsPerGenre" class="genre-tag">{{ genreLabel(photo) }}</span>
+          <span v-if="highlights" class="genre-tag">{{ genreLabel(photo) }}</span>
         </figcaption>
       </figure>
     </div>
