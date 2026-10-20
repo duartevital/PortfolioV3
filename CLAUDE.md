@@ -14,7 +14,7 @@ Personal photography portfolio ("Vital Photography") — a dark, moody, masonry-
 - **Pets:** Portraits · Action
 - **Weddings:** Ceremony · Reception · Details
 
-Genre is *derived* from the category slug (every slug belongs to exactly one genre — see `src/lib/categories.ts`), so there is no separate `genre` column in the database. The homepage (`/`) is not a genre page — it shows a curated "highlights" grid (top-ordered photos per genre) plus links into the three genre pages.
+Genre is *derived* from the category slug (every slug belongs to exactly one genre — see `src/lib/categories.ts`), so there is no separate `genre` column in the database. The homepage (`/`) is not a genre page — it shows a curated "highlights" grid (the photos marked `featured` in the admin panel, grouped by genre) plus links into the three genre pages.
 
 **Why this rebuild:** the previous version worked but ran as *two* services in two languages (a Nuxt SPA + a separate C# Web API) for what is essentially a single-user content site. This rebuild collapses everything into **one full-stack Astro app, one service, one deploy.**
 
@@ -43,7 +43,7 @@ Astro renders most of the site to static HTML (near-zero JS) and hydrates only s
 - **Prerendered (static):** `/` gallery shell, `/about`, `/contact`. SEO-friendly, fast.
 - **On-demand (SSR):** `/admin`, `/admin/login`, and all API/Action routes.
 - **Islands (Vue, hydrated):**
-  - **`<Gallery>`** — a *single* island containing the masonry grid **+** filter bar **+** lightbox. Keep these together in one island so their shared state (active filter, open photo) lives in ordinary Vue reactivity. Do **not** split them into three islands. It's reused across pages via props: a `genre` prop scopes it to one genre page (grid + that genre's category pills), and a `highlightsPerGenre` prop switches it to homepage mode (no pills, top N photos per genre, each captioned with its genre).
+  - **`<Gallery>`** — a *single* island containing the masonry grid **+** filter bar **+** lightbox. Keep these together in one island so their shared state (active filter, open photo) lives in ordinary Vue reactivity. Do **not** split them into three islands. It's reused across pages via props: a `genre` prop scopes it to one genre page (grid + that genre's category pills), and a `highlights` prop switches it to homepage mode (no pills, only `featured` photos grouped by genre, each captioned with its genre).
   - **`<AdminPanel>`** — a second island for upload/reorder/metadata/delete.
   - Everything else is static `.astro`.
 
@@ -59,7 +59,7 @@ Astro renders most of the site to static HTML (near-zero JS) and hydrates only s
 /
 ├─ src/
 │  ├─ pages/
-│  │  ├─ index.astro            # homepage: highlights shell + <Gallery highlightsPerGenre> island
+│  │  ├─ index.astro            # homepage: highlights shell + <Gallery highlights> island
 │  │  ├─ [genre].astro          # one prerendered page per genre (travel/pets/weddings)
 │  │  ├─ about.astro
 │  │  ├─ contact.astro
@@ -106,6 +106,7 @@ export const photos = sqliteTable('photos', {
   description:  text('description'),
   shootDate:    text('shoot_date'),                   // ISO 8601 date
   visible:      integer('visible', { mode: 'boolean' }).notNull().default(true),
+  featured:     integer('featured', { mode: 'boolean' }).notNull().default(false), // shown in homepage highlights
   order:        integer('order').notNull().default(0),
   thumbnailUrl: text('thumbnail_url').notNull(),      // /uploads/<id>-thumb.webp
   displayUrl:   text('display_url').notNull(),        // /uploads/<id>-display.webp
@@ -141,6 +142,7 @@ Images are served by `src/pages/uploads/[...file].ts`, reading from the volume a
 - **Mutations (admin, via Astro Actions):**
   - `uploadPhoto(file, metadata)` → runs the sharp pipeline, inserts row
   - `updatePhoto(id, metadata)` → edits title/category/description/shootDate/visible
+  - `setFeatured(id, featured)` → toggles whether a photo appears in the homepage highlights
   - `reorderPhotos(orderedIds[])`
   - `deletePhoto(id)` → removes row + both image files
 - **Auth:**
@@ -163,7 +165,7 @@ Single user. No third-party auth service.
 
 | Route | Rendering | Description |
 |---|---|---|
-| `/` | Static shell + Vue island | Homepage — curated highlights grid (top photos per genre) + links into genre pages |
+| `/` | Static shell + Vue island | Homepage — curated highlights grid (photos marked "Show on homepage" in admin) + links into genre pages |
 | `/travel`, `/pets`, `/weddings` | Static shell + Vue island (one route, `getStaticPaths` over `GENRE_SLUGS`) | Per-genre gallery — masonry, category pills scoped to that genre, lightbox |
 | `/about` | Static | Bio, gear/philosophy, portrait |
 | `/contact` | Static | Email display only |

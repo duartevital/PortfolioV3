@@ -83,6 +83,14 @@ const updatePhoto = defineAction({
   },
 });
 
+const setFeatured = defineAction({
+  input: z.object({ id: z.string(), featured: z.boolean() }),
+  handler: async ({ id, featured }, context) => {
+    requireAuth(context);
+    await db.update(photos).set({ featured }).where(eq(photos.id, id));
+  },
+});
+
 const reorderPhotos = defineAction({
   input: z.object({ orderedIds: z.array(z.string()) }),
   handler: async ({ orderedIds }, context) => {
@@ -113,6 +121,7 @@ export const server = {
   logout,
   uploadPhoto,
   updatePhoto,
+  setFeatured,
   reorderPhotos,
   deletePhoto,
 };
