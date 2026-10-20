@@ -7,12 +7,12 @@ export const GENRES = {
       'street-urban': 'Street / Urban',
     },
   },
-  dogs: {
-    label: 'Dogs',
-    description: 'Vital Photography — a dog photography portfolio: portraits and action shots.',
+  pets: {
+    label: 'Pets',
+    description: 'Vital Photography — a pet photography portfolio: portraits and action shots.',
     categories: {
-      'dog-portraits': 'Portraits',
-      'dog-action': 'Action',
+      'pet-portraits': 'Portraits',
+      'pet-action': 'Action',
     },
   },
   weddings: {
