@@ -32,6 +32,61 @@ const uploadForm = ref({
 const uploading = ref(false);
 const uploadError = ref<string | null>(null);
 
+type MetaField = 'title' | 'description' | 'shootDate';
+// Values last filled in from file metadata, so picking another file can
+// replace them without clobbering anything the user typed by hand.
+const autoFilled: Partial<Record<MetaField, string>> = {};
+const metaNote = ref<string | null>(null);
+
+// XMP text fields can come back as a plain string or a { lang, value } object.
+function text(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  if (value && typeof value === 'object' && 'value' in value) return text((value as { value: unknown }).value);
+  return '';
+}
+
+// Format with local getters: exifr builds the Date in local time, so
+// toISOString() could shift a late-evening shot to the next day.
+function toDateInput(value: unknown): string {
+  if (!(value instanceof Date) || isNaN(value.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
+}
+
+async function onFileChange() {
+  const file = fileInput.value?.files?.[0];
+  if (!file) return;
+
+  metaNote.value = null;
+  let meta: Record<string, unknown> | undefined;
+  try {
+    const { default: exifr } = await import('exifr');
+    meta = await exifr.parse(file, { tiff: true, exif: true, iptc: true, xmp: true });
+  } catch (err) {
+    console.warn('Could not read photo metadata', err);
+  }
+
+  const takenDate = toDateInput(meta?.DateTimeOriginal ?? meta?.CreateDate ?? meta?.DateCreated);
+  const values: Record<MetaField, string> = {
+    title: text(meta?.title) || text(meta?.ObjectName) || text(meta?.XPTitle),
+    description: text(meta?.description) || text(meta?.Caption) || text(meta?.ImageDescription),
+    // Browsers don't expose the file system's "created" date, so the file's
+    // last-modified date is the closest fallback when there's no "date taken".
+    shootDate: takenDate || toDateInput(new Date(file.lastModified)),
+  };
+
+  for (const field of Object.keys(values) as MetaField[]) {
+    const current = uploadForm.value[field];
+    if (current !== '' && current !== autoFilled[field]) continue;
+    uploadForm.value[field] = values[field];
+    autoFilled[field] = values[field];
+  }
+
+  if (!takenDate && uploadForm.value.shootDate === values.shootDate) {
+    metaNote.value = 'No “date taken” in this file — used the file’s modified date instead. Check it’s right.';
+  }
+}
+
 const editingId = ref<string | null>(null);
 const editForm = ref({
   title: '',
@@ -137,7 +192,8 @@ async function move(index: number, direction: -1 | 1) {
     <section class="upload">
       <h2>Upload New Photo</h2>
       <form @submit.prevent="submitUpload">
-        <input ref="fileInput" type="file" accept="image/*" required />
+        <input ref="fileInput" type="file" accept="image/*" required @change="onFileChange" />
+        <p v-if="metaNote" class="muted">{{ metaNote }}</p>
         <input v-model="uploadForm.title" type="text" placeholder="Title" required />
         <select v-model="uploadForm.category">
           <optgroup v-for="(genre, genreSlug) in GENRES" :key="genreSlug" :label="genre.label">
