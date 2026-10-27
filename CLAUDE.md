@@ -258,6 +258,7 @@ docker compose up --build
 - App: http://localhost:4321 (or mapped port)
 - Data (SQLite + processed images) persists on a mounted volume (`./data/`)
 - Astro built with `output: 'server'` + `@astrojs/node` (standalone), run via `node ./dist/server/entry.mjs`
+- Production (self-hosted Ubuntu, `vitalportfolio.nl`): `docker compose --profile tunnel up -d --build` also starts a Cloudflare Tunnel (`cloudflared`, token in `TUNNEL_TOKEN`) that routes the public hostnames to `app:4321`. The app port is bound to `127.0.0.1` only, and `security.allowedDomains` in `astro.config.mjs` trusts the production hostnames so Actions pass Astro's origin check behind the proxy.
 
 ---
 

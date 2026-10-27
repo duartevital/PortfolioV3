@@ -5,9 +5,20 @@ services:
       args:
         PUBLIC_SITE_URL: ${PUBLIC_SITE_URL}
     ports:
-      - '4321:4321'
+      - '127.0.0.1:4321:4321'
     env_file:
       - .env
     volumes:
       - ./data:/app/data
     restart: unless-stopped
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN}
+    depends_on:
+      - app
+    restart: unless-stopped
+    profiles:
+      - tunnel

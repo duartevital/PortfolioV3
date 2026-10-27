@@ -31,6 +31,10 @@ export default defineConfig({
   security: {
     // Default is 1 MB, too small for photo uploads.
     actionBodySizeLimit: 30 * 1024 * 1024,
+    allowedDomains: [
+      { hostname: 'vitalportfolio.nl', protocol: 'https' },
+      { hostname: 'www.vitalportfolio.nl', protocol: 'https' },
+    ],
   },
 
   env: {
