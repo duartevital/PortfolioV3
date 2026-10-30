@@ -4,6 +4,7 @@ import { asc } from 'drizzle-orm';
 import { db } from '../../lib/db';
 import { photos } from '../../lib/schema';
 import AdminPanel from '../../components/AdminPanel.vue';
+import ThemeScript from '../../components/ThemeScript.astro';
 
 export const prerender = false;
 
@@ -13,6 +14,7 @@ const initialPhotos = await db.select().from(photos).orderBy(asc(photos.order));
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
+		<ThemeScript />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="robots" content="noindex" />
 		<title>Admin — Duarte Vital</title>

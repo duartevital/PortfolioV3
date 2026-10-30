@@ -2,6 +2,7 @@
 import '../styles/tokens.css';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import ThemeScript from '../components/ThemeScript.astro';
 import { PUBLIC_SITE_URL } from 'astro:env/client';
 
 interface Props {
@@ -16,6 +17,7 @@ const canonicalUrl = new URL(Astro.url.pathname, PUBLIC_SITE_URL).toString();
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
+		<ThemeScript />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />

@@ -182,7 +182,7 @@ onUnmounted(() => {
       </figure>
     </div>
 
-    <div v-if="openPhoto" class="lightbox" @click.self="closeLightbox">
+    <div v-if="openPhoto" class="lightbox" data-theme="dark" @click.self="closeLightbox">
       <button type="button" class="lightbox-close" aria-label="Close" @click="closeLightbox">✕</button>
       <button type="button" class="lightbox-prev" aria-label="Previous photo" @click="showPrev">‹</button>
       <button type="button" class="lightbox-next" aria-label="Next photo" @click="showNext">›</button>
