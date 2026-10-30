@@ -1,20 +1,22 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-// TODO: replace with the real contact email
-const email = 'hello@example.com';
+import { PROFILE } from '../lib/cv';
 ---
 
-<BaseLayout title="Contact — Vital Photography" description="Get in touch with Vital Photography.">
+<BaseLayout title="Contact — Duarte Vital" description="Get in touch with Duarte Vital, Software Engineer in Utrecht.">
 	<main class="contact">
 		<h1>Contact</h1>
-		<p>For prints, licensing, or just to say hello:</p>
-		<a class="email" href={`mailto:${email}`}>{email}</a>
+		<p>For job opportunities, collaborations, photography, or just to say hello:</p>
+		<a class="email" href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
+		<a class="linkedin" href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
 	</main>
 </BaseLayout>
 
 <style>
 	.contact {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 		max-width: 480px;
 		margin: 0 auto;
 		padding: 4rem 1.5rem;
@@ -34,9 +36,17 @@ const email = 'hello@example.com';
 		font-size: 1.25rem;
 		color: var(--color-accent);
 		text-decoration: none;
+		overflow-wrap: anywhere;
 	}
 
-	.email:hover {
+	.linkedin {
+		margin-top: 1rem;
+		color: var(--color-muted);
+		text-decoration: none;
+	}
+
+	.email:hover,
+	.linkedin:hover {
 		color: var(--color-accent-dim);
 	}
 </style>

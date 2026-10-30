@@ -1,4 +1,4 @@
-# Vital Photography (Astro rebuild) — CLAUDE.md
+# Duarte Vital — portfolio (Astro rebuild) — CLAUDE.md
 
 Project spec and working guide for Claude Code and contributors. This is a **greenfield rebuild** of a photography portfolio that previously ran on Nuxt 4 + ASP.NET Core. The product goals are unchanged; the stack is new.
 
@@ -6,15 +6,20 @@ Project spec and working guide for Claude Code and contributors. This is a **gre
 
 ## Project Overview
 
-Personal photography portfolio ("Vital Photography") — a dark, moody, masonry-grid gallery with a lightbox and a single-user, password-protected admin panel for uploading and managing photos. The owner is a semi-professional hobbyist photographer. Low traffic, self-hosted.
+Personal site of Duarte Vital, with two sides:
 
-**Genres (top-level nav, one page each):** Travel · Pets · Weddings. Each genre has its own set of category pills:
+- **Software engineering portfolio (primary).** The homepage (`/`) is a CV-style page for recruiters: summary, experience, education, languages. Content lives in `src/lib/cv.ts` and mirrors the owner's CV exactly; keep it contained to what's on the CV, in the CV's (reverse-chronological) order, and don't invent projects. The phone number is deliberately left off the public site.
+- **Photography portfolio (secondary, under `/photography`).** A dark, moody, masonry-grid gallery with a lightbox and a single-user, password-protected admin panel for uploading and managing photos. The owner is a semi-professional hobbyist photographer.
+
+Low traffic, self-hosted.
+
+**Genres (photography sub-nav, one page each under `/photography/<genre>`):** Travel · Pets · Weddings. Each genre has its own set of category pills:
 
 - **Travel:** Landscape / Nature · Street / Urban
 - **Pets:** Portraits · Action
 - **Weddings:** Ceremony · Reception · Details
 
-Genre is *derived* from the category slug (every slug belongs to exactly one genre — see `src/lib/categories.ts`), so there is no separate `genre` column in the database. The homepage (`/`) is not a genre page — it shows a curated "highlights" grid (the photos marked `featured` in the admin panel, grouped by genre) plus links into the three genre pages.
+Genre is *derived* from the category slug (every slug belongs to exactly one genre — see `src/lib/categories.ts`), so there is no separate `genre` column in the database. The photography landing page (`/photography`) is not a genre page — it shows a curated "highlights" grid (the photos marked `featured` in the admin panel, grouped by genre). `PhotographyNav.astro` links between the highlights and the three genre pages. The old top-level `/travel`, `/pets`, `/weddings` URLs 301 to their `/photography/*` equivalents (`redirects` in `astro.config.mjs`).
 
 **Why this rebuild:** the previous version worked but ran as *two* services in two languages (a Nuxt SPA + a separate C# Web API) for what is essentially a single-user content site. This rebuild collapses everything into **one full-stack Astro app, one service, one deploy.**
 
@@ -40,7 +45,7 @@ Genre is *derived* from the category slug (every slug belongs to exactly one gen
 
 Astro renders most of the site to static HTML (near-zero JS) and hydrates only small "islands" of interactivity.
 
-- **Prerendered (static):** `/` gallery shell, `/about`, `/contact`. SEO-friendly, fast.
+- **Prerendered (static):** `/` CV page, `/photography` + genre gallery shells, `/contact`. SEO-friendly, fast.
 - **On-demand (SSR):** `/admin`, `/admin/login`, and all API/Action routes.
 - **Islands (Vue, hydrated):**
   - **`<Gallery>`** — a *single* island containing the masonry grid **+** filter bar **+** lightbox. Keep these together in one island so their shared state (active filter, open photo) lives in ordinary Vue reactivity. Do **not** split them into three islands. It's reused across pages via props: a `genre` prop scopes it to one genre page (grid + that genre's category pills), and a `highlights` prop switches it to homepage mode (no pills, only `featured` photos grouped by genre, each captioned with its genre).
@@ -59,9 +64,10 @@ Astro renders most of the site to static HTML (near-zero JS) and hydrates only s
 /
 ├─ src/
 │  ├─ pages/
-│  │  ├─ index.astro            # homepage: highlights shell + <Gallery highlights> island
-│  │  ├─ [genre].astro          # one prerendered page per genre (travel/pets/weddings)
-│  │  ├─ about.astro
+│  │  ├─ index.astro            # homepage: software engineering CV (data from lib/cv.ts)
+│  │  ├─ photography/
+│  │  │  ├─ index.astro         # highlights shell + <Gallery highlights> island
+│  │  │  └─ [genre].astro       # one prerendered page per genre (travel/pets/weddings)
 │  │  ├─ contact.astro
 │  │  ├─ admin/
 │  │  │  ├─ index.astro         # SSR, guarded — hosts <AdminPanel> island
@@ -74,7 +80,7 @@ Astro renders most of the site to static HTML (near-zero JS) and hydrates only s
 │  │  ├─ Gallery.vue            # masonry + filter + lightbox (one island)
 │  │  ├─ AdminPanel.vue
 │  │  ├─ BlurImage.vue
-│  │  └─ ...                    # SiteNav.astro, SiteFooter.astro (static)
+│  │  └─ ...                    # SiteNav.astro, SiteFooter.astro, PhotographyNav.astro (static)
 │  ├─ lib/
 │  │  ├─ db.ts                  # Drizzle client
 │  │  ├─ schema.ts              # Drizzle schema
@@ -176,10 +182,11 @@ Single user. No third-party auth service.
 
 | Route | Rendering | Description |
 |---|---|---|
-| `/` | Static shell + Vue island | Homepage — curated highlights grid (photos marked "Show on homepage" in admin) + links into genre pages |
-| `/travel`, `/pets`, `/weddings` | Static shell + Vue island (one route, `getStaticPaths` over `GENRE_SLUGS`) | Per-genre gallery — masonry, category pills scoped to that genre, lightbox |
-| `/about` | Static | Bio, gear/philosophy, portrait |
-| `/contact` | Static | Email display only |
+| `/` | Static | Homepage — software engineering CV (summary, experience, education, languages) + link to photography |
+| `/photography` | Static shell + Vue island | Curated highlights grid (photos marked "Show on homepage" in admin) + genre sub-nav |
+| `/photography/travel`, `/photography/pets`, `/photography/weddings` | Static shell + Vue island (one route, `getStaticPaths` over `GENRE_SLUGS`) | Per-genre gallery — masonry, category pills scoped to that genre, lightbox |
+| `/travel`, `/pets`, `/weddings` | 301 redirect | Legacy URLs → `/photography/<genre>` |
+| `/contact` | Static | Email + LinkedIn |
 | `/admin` | SSR (guarded) | Admin panel island |
 | `/admin/login` | SSR | Login form |
 | `/uploads/[...file]` | SSR endpoint | Serves uploaded images with immutable cache headers |

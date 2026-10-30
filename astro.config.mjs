@@ -9,6 +9,12 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: process.env.PUBLIC_SITE_URL || 'http://localhost:4321',
 
+  redirects: {
+    '/travel': '/photography/travel',
+    '/pets': '/photography/pets',
+    '/weddings': '/photography/weddings',
+  },
+
   integrations: [
     vue(),
     sitemap({

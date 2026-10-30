@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Gallery from '../../components/Gallery.vue';
+import PhotographyNav from '../../components/PhotographyNav.astro';
+---
+
+<BaseLayout
+	title="Photography — Duarte Vital"
+	description="Duarte Vital's photography portfolio: travel, pets and weddings."
+>
+	<h1 class="site-title">Photography</h1>
+	<PhotographyNav />
+	<Gallery highlights client:load />
+</BaseLayout>
+
+<style>
+	.site-title {
+		text-align: center;
+		padding: 2rem 1.5rem 0.5rem;
+		margin: 0;
+		font-weight: 500;
+		letter-spacing: 0.02em;
+	}
+</style>

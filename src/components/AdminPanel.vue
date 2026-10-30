@@ -176,7 +176,7 @@ async function move(index: number, direction: -1 | 1) {
 <template>
   <div class="admin">
     <header>
-      <h1>Vital Photography — Admin</h1>
+      <h1>Photography Admin</h1>
       <button type="button" @click="logout">Log out</button>
     </header>
 
