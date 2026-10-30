@@ -1,0 +1,44 @@
+---
+import { GENRES, GENRE_SLUGS } from '../lib/categories';
+
+const links = [
+  { href: '/photography', label: 'Highlights' },
+  ...GENRE_SLUGS.map((genre) => ({ href: `/photography/${genre}`, label: GENRES[genre].label })),
+];
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '');
+---
+
+<nav class="photo-nav" aria-label="Photography">
+  {links.map((link) => (
+    <a href={link.href} class:list={['photo-link', { active: currentPath === link.href }]}>
+      {link.label}
+    </a>
+  ))}
+</nav>
+
+<style>
+  .photo-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.5rem 0;
+  }
+
+  .photo-link {
+    padding: 0.35rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    color: var(--color-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .photo-link:hover,
+  .photo-link.active {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+</style>

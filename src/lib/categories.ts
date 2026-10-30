@@ -1,7 +1,7 @@
 export const GENRES = {
   travel: {
     label: 'Travel',
-    description: 'Vital Photography — a travel photography portfolio spanning landscapes, nature, and street scenes.',
+    description: 'Duarte Vital — travel photography spanning landscapes, nature, and street scenes.',
     categories: {
       'landscape-nature': 'Landscape / Nature',
       'street-urban': 'Street / Urban',
@@ -9,7 +9,7 @@ export const GENRES = {
   },
   pets: {
     label: 'Pets',
-    description: 'Vital Photography — a pet photography portfolio: portraits and action shots.',
+    description: 'Duarte Vital — pet photography: portraits and action shots.',
     categories: {
       'pet-portraits': 'Portraits',
       'pet-action': 'Action',
@@ -17,7 +17,7 @@ export const GENRES = {
   },
   weddings: {
     label: 'Weddings',
-    description: 'Vital Photography — a wedding photography portfolio: ceremonies, receptions, and details.',
+    description: 'Duarte Vital — wedding photography: ceremonies, receptions, and details.',
     categories: {
       'wedding-ceremony': 'Ceremony',
       'wedding-reception': 'Reception',

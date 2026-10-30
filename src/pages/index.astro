@@ -1,22 +1,340 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Gallery from '../components/Gallery.vue';
+import { Image } from 'astro:assets';
+import { PROFILE, EXPERIENCE, EDUCATION, LANGUAGES } from '../lib/cv';
+import portrait from '../assets/portrait.jpg';
 ---
 
 <BaseLayout
-	title="Vital Photography"
-	description="Vital Photography — a travel, pet and wedding photography portfolio."
+	title={`${PROFILE.name} — ${PROFILE.role}`}
+	description={`${PROFILE.name}, ${PROFILE.role} in ${PROFILE.location}. .NET, C#, Vue, Angular, TypeScript and Microsoft Azure.`}
 >
-	<h1 class="site-title">Vital Photography</h1>
-	<Gallery highlights client:load />
+	<main class="home">
+		<section class="hero">
+			<div class="hero-text">
+				<p class="eyebrow">{PROFILE.location}</p>
+				<h1>{PROFILE.name}</h1>
+				<p class="role">{PROFILE.role}</p>
+				<div class="hero-links">
+					<a class="button primary" href="/contact">Get in touch</a>
+					<a class="button" href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+				</div>
+			</div>
+			<Image
+				class="portrait"
+				src={portrait}
+				alt={`Portrait of ${PROFILE.name}`}
+				widths={[200, 400]}
+				sizes="200px"
+				format="webp"
+				loading="eager"
+			/>
+		</section>
+
+		<section>
+			<h2>Summary</h2>
+			<p class="summary">{PROFILE.summary}</p>
+		</section>
+
+		<section>
+			<h2>Experience</h2>
+			<ol class="timeline">
+				{EXPERIENCE.map((job) => (
+					<li class="entry">
+						<header>
+							<h3>{job.role} <span class="at">· {job.company}</span></h3>
+							<p class="meta">{job.location} · {job.period}</p>
+						</header>
+						{job.highlights.length > 0 && (
+							<ul class="highlights">
+								{job.highlights.map((highlight) => <li>{highlight}</li>)}
+							</ul>
+						)}
+						{job.technologies.length > 0 && (
+							<ul class="tags" aria-label="Technologies">
+								{job.technologies.map((tech) => <li>{tech}</li>)}
+							</ul>
+						)}
+					</li>
+				))}
+			</ol>
+		</section>
+
+		<section>
+			<h2>Education</h2>
+			<ol class="timeline">
+				{EDUCATION.map((item) => (
+					<li class="entry">
+						<header>
+							<h3>{item.degree}</h3>
+							<p class="meta">{item.school} · {item.period}</p>
+						</header>
+						{item.highlights.length > 0 && (
+							<ul class="highlights">
+								{item.highlights.map((highlight) => (
+									<li>
+										{highlight.text}
+										{highlight.link && (
+											<>
+												{' '}
+												<a href={highlight.link.href} target="_blank" rel="noopener noreferrer">
+													{highlight.link.label}
+												</a>
+											</>
+										)}
+									</li>
+								))}
+							</ul>
+						)}
+					</li>
+				))}
+			</ol>
+		</section>
+
+		<section>
+			<h2>Languages</h2>
+			<ul class="languages">
+				{LANGUAGES.map((item) => (
+					<li><strong>{item.language}</strong> <span class="meta">{item.level}</span></li>
+				))}
+			</ul>
+		</section>
+
+		<a class="photo-teaser" href="/photography">
+			<span class="eyebrow">Off the clock</span>
+			<span class="teaser-title">Photography →</span>
+			<span class="meta">Travel, pets and weddings.</span>
+		</a>
+	</main>
 </BaseLayout>
 
 <style>
-	.site-title {
-		text-align: center;
-		padding: 2rem 1.5rem 0;
+	.home {
+		max-width: 760px;
+		margin: 0 auto;
+		padding: 2rem 1.5rem 2rem;
+	}
+
+	.hero {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 2rem;
+		padding: 3rem 0 2rem;
+		border-top: none;
+	}
+
+	.portrait {
+		flex-shrink: 0;
+		width: 200px;
+		height: 200px;
+		object-fit: cover;
+		object-position: center 30%;
+		border-radius: 50%;
+		border: 1px solid var(--color-border);
+	}
+
+	.eyebrow {
 		margin: 0;
+		color: var(--color-accent);
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	h1 {
+		margin: 0.5rem 0 0.25rem;
+		font-size: clamp(2.25rem, 7vw, 3.5rem);
+		font-weight: 600;
+		letter-spacing: -0.01em;
+	}
+
+	.role {
+		margin: 0;
+		font-size: 1.25rem;
+		color: var(--color-muted);
+	}
+
+	.hero-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 1.75rem;
+	}
+
+	.button {
+		padding: 0.6rem 1.1rem;
+		border: 1px solid var(--color-border);
+		border-radius: 6px;
+		color: var(--color-text);
+		text-decoration: none;
+		font-size: 0.9rem;
+		transition: border-color 0.2s ease, background 0.2s ease;
+	}
+
+	.button:hover {
+		border-color: var(--color-accent);
+	}
+
+	.button.primary {
+		background: var(--color-accent);
+		border-color: var(--color-accent);
+		color: var(--color-bg);
+	}
+
+	.button.primary:hover {
+		background: var(--color-accent-dim);
+		border-color: var(--color-accent-dim);
+	}
+
+	section {
+		padding: 1.5rem 0;
+		border-top: 1px solid var(--color-border);
+	}
+
+	h2 {
+		margin: 0 0 1.25rem;
+		font-size: 0.85rem;
+		color: var(--color-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
 		font-weight: 500;
-		letter-spacing: 0.02em;
+	}
+
+	.summary {
+		margin: 0;
+		line-height: 1.75;
+	}
+
+	.timeline {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.entry {
+		position: relative;
+		padding: 0 0 2rem 1.5rem;
+		border-left: 1px solid var(--color-border);
+	}
+
+	.entry:last-child {
+		padding-bottom: 0.5rem;
+	}
+
+	.entry::before {
+		content: '';
+		position: absolute;
+		left: -5px;
+		top: 0.45rem;
+		width: 9px;
+		height: 9px;
+		border-radius: 50%;
+		background: var(--color-accent);
+	}
+
+	h3 {
+		margin: 0;
+		font-size: 1.05rem;
+		font-weight: 600;
+	}
+
+	.at {
+		color: var(--color-accent);
+		font-weight: 500;
+	}
+
+	.meta {
+		margin: 0.25rem 0 0;
+		color: var(--color-muted);
+		font-size: 0.875rem;
+	}
+
+	.highlights {
+		margin: 0.75rem 0 0;
+		padding-left: 1.1rem;
+		line-height: 1.65;
+	}
+
+	.highlights li + li {
+		margin-top: 0.35rem;
+	}
+
+	.highlights a {
+		color: var(--color-accent);
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		list-style: none;
+		margin: 0.9rem 0 0;
+		padding: 0;
+	}
+
+	.tags li {
+		padding: 0.2rem 0.6rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: 999px;
+		font-size: 0.78rem;
+		color: var(--color-text);
+	}
+
+	.languages {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		line-height: 2;
+	}
+
+	.languages .meta {
+		margin-left: 0.5rem;
+	}
+
+	.photo-teaser {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		margin-top: 1.5rem;
+		padding: 1.5rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		color: var(--color-text);
+		text-decoration: none;
+		transition: border-color 0.2s ease;
+	}
+
+	.photo-teaser:hover {
+		border-color: var(--color-accent);
+	}
+
+	.teaser-title {
+		font-size: 1.25rem;
+		font-weight: 600;
+	}
+
+	.photo-teaser .meta {
+		margin: 0;
+	}
+
+	@media (max-width: 480px) {
+		.home {
+			padding: 1rem 1rem 2rem;
+		}
+
+		.hero {
+			flex-direction: column-reverse;
+			align-items: flex-start;
+			gap: 1.5rem;
+			padding-top: 1.5rem;
+		}
+
+		.portrait {
+			width: 120px;
+			height: 120px;
+		}
 	}
 </style>

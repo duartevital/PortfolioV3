@@ -1,10 +1,7 @@
 ---
-import { GENRES, GENRE_SLUGS } from '../lib/categories';
-
 const links = [
   { href: '/', label: 'Home' },
-  ...GENRE_SLUGS.map((genre) => ({ href: `/${genre}`, label: GENRES[genre].label })),
-  { href: '/about', label: 'About' },
+  { href: '/photography', label: 'Photography' },
   { href: '/contact', label: 'Contact' },
 ];
 
@@ -12,13 +9,17 @@ const links = [
 // any trailing slash before comparing against the un-slashed hrefs below.
 const currentPath =
   Astro.url.pathname.length > 1 ? Astro.url.pathname.replace(/\/$/, '') : Astro.url.pathname;
+
+function isActive(href: string) {
+  return href === '/' ? currentPath === '/' : currentPath === href || currentPath.startsWith(`${href}/`);
+}
 ---
 
 <header class="site-nav">
-  <a href="/" class="brand">Vital Photography</a>
+  <a href="/" class="brand">Duarte Vital</a>
   <nav>
     {links.map((link) => (
-      <a href={link.href} class:list={['nav-link', { active: currentPath === link.href }]}>
+      <a href={link.href} class:list={['nav-link', { active: isActive(link.href) }]}>
         {link.label}
       </a>
     ))}
