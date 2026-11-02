@@ -80,19 +80,19 @@ function formatShutter(seconds: number) {
   return seconds < 1 ? `1/${Math.round(1 / seconds)}s` : `${Number(seconds.toFixed(1))}s`;
 }
 
-const cameraSettings = computed(() => {
-  const photo = openPhoto.value;
-  if (!photo) return '';
+function exposureSettings(photo: Photo) {
   return [
-    photo.camera,
-    photo.lens,
     photo.focalLength && `${Math.round(photo.focalLength)}mm`,
     photo.aperture && `f/${Number(photo.aperture.toFixed(1))}`,
     photo.exposureTime && formatShutter(photo.exposureTime),
     photo.iso && `ISO ${photo.iso}`,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  ].filter(Boolean);
+}
+
+const cameraSettings = computed(() => {
+  const photo = openPhoto.value;
+  if (!photo) return '';
+  return [photo.camera, photo.lens, ...exposureSettings(photo)].filter(Boolean).join(' · ');
 });
 
 function selectFilter(filter: Filter) {
@@ -167,14 +167,25 @@ onUnmounted(() => {
         class="masonry-item"
         @click="openLightbox(index)"
       >
-        <BlurImage
-          :src="photo.thumbnailUrl"
-          :srcset="getThumbnailSrcSet(photo.thumbnailUrl)"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          :alt="photo.title"
-          :width="photo.width"
-          :height="photo.height"
-        />
+        <div class="frame">
+          <BlurImage
+            :src="photo.thumbnailUrl"
+            :srcset="getThumbnailSrcSet(photo.thumbnailUrl)"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            :alt="photo.title"
+            :width="photo.width"
+            :height="photo.height"
+          />
+          <div class="viewfinder" data-theme="dark" aria-hidden="true">
+            <span class="corner top-left" />
+            <span class="corner top-right" />
+            <span class="corner bottom-left" />
+            <span class="corner bottom-right" />
+            <p v-if="exposureSettings(photo).length" class="readout">
+              {{ exposureSettings(photo).join(' · ') }}
+            </p>
+          </div>
+        </div>
         <figcaption>
           {{ photo.title }}
           <span v-if="highlights" class="genre-tag">{{ genreLabel(photo) }}</span>
@@ -286,8 +297,100 @@ onUnmounted(() => {
   color: var(--color-accent);
 }
 
-.masonry-item:hover :deep(img) {
-  transform: scale(1.05);
+.masonry-item {
+  transition: opacity 0.3s ease;
+}
+
+.frame {
+  position: relative;
+}
+
+.viewfinder {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 0 solid var(--color-text);
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
+  transition: transform 0.3s ease;
+}
+
+.top-left {
+  top: 12px;
+  left: 12px;
+  border-top-width: 1.5px;
+  border-left-width: 1.5px;
+  transform: translate(-8px, -8px);
+}
+
+.top-right {
+  top: 12px;
+  right: 12px;
+  border-top-width: 1.5px;
+  border-right-width: 1.5px;
+  transform: translate(8px, -8px);
+}
+
+.bottom-left {
+  bottom: 12px;
+  left: 12px;
+  border-bottom-width: 1.5px;
+  border-left-width: 1.5px;
+  transform: translate(-8px, 8px);
+}
+
+.bottom-right {
+  bottom: 12px;
+  right: 12px;
+  border-bottom-width: 1.5px;
+  border-right-width: 1.5px;
+  transform: translate(8px, 8px);
+}
+
+.readout {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 2rem 2.25rem 1.1rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+  color: var(--color-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+@media (hover: hover) {
+  .masonry-item:hover :deep(img) {
+    transform: scale(1.05);
+  }
+
+  .masonry:has(.masonry-item:hover) .masonry-item:not(:hover) {
+    opacity: 0.4;
+  }
+
+  .masonry-item:hover .viewfinder {
+    opacity: 1;
+  }
+
+  .masonry-item:hover .corner {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .corner {
+    transition: none;
+  }
 }
 
 .lightbox {
