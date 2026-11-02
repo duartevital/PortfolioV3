@@ -12,6 +12,7 @@ interface Props {
 
 const { title, description } = Astro.props;
 const canonicalUrl = new URL(Astro.url.pathname, PUBLIC_SITE_URL).toString();
+const ogImageUrl = new URL('/og-image.png', PUBLIC_SITE_URL).toString();
 ---
 
 <html lang="en">
@@ -29,6 +30,13 @@ const canonicalUrl = new URL(Astro.url.pathname, PUBLIC_SITE_URL).toString();
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:site_name" content="Duarte Vital" />
+		<meta property="og:image" content={ogImageUrl} />
+		<meta property="og:image:type" content="image/png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="Duarte Vital, Software Engineer in Utrecht, Netherlands" />
+		<meta name="twitter:card" content="summary_large_image" />
 	</head>
 	<body>
 		<SiteNav />
