@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import CodeBackground from '../components/CodeBackground.astro';
 import { Image } from 'astro:assets';
 import { PROFILE, EXPERIENCE, EDUCATION, LANGUAGES } from '../lib/cv';
 import portrait from '../assets/portrait.jpg';
@@ -9,6 +10,7 @@ import portrait from '../assets/portrait.jpg';
 	title={`${PROFILE.name} — ${PROFILE.role}`}
 	description={`${PROFILE.name}, ${PROFILE.role} in ${PROFILE.location}. .NET, C#, Vue, Angular, TypeScript and Microsoft Azure.`}
 >
+	<CodeBackground />
 	<main class="home">
 		<section class="hero">
 			<div class="hero-text">

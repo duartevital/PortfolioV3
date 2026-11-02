@@ -1,0 +1,148 @@
+<canvas class="code-background" aria-hidden="true"></canvas>
+
+<script>
+  const CELL = 18;
+  const FONT_SIZE = 13;
+  const RADIUS = 130;
+  const DECAY = 0.93;
+  const FLIP_INTERVAL_MS = 140;
+  const FLIP_SHARE = 0.004;
+  const GLYPHS = '0101010101{}<>/;=()[]*+';
+
+  type Rgb = [number, number, number];
+
+  const canvas = document.querySelector<HTMLCanvasElement>('.code-background');
+  const ctx = canvas?.getContext('2d');
+
+  if (canvas && ctx) {
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let cols = 0;
+    let rows = 0;
+    let chars: string[] = [];
+    let heat = new Float32Array(0);
+    let baseColor: Rgb = [0, 0, 0];
+    let accentColor: Rgb = [0, 0, 0];
+    let pointer: { x: number; y: number } | null = null;
+    let lastFlip = 0;
+    let frame = 0;
+
+    const randomGlyph = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+
+    const readColor = (name: string): Rgb => {
+      const hex = getComputedStyle(document.documentElement).getPropertyValue(name).trim().replace('#', '');
+      const value = parseInt(hex.length === 3 ? [...hex].map((c) => c + c).join('') : hex, 16);
+      return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+    };
+
+    const mix = (t: number) => {
+      const [r, g, b] = baseColor.map((c, i) => Math.round(c + (accentColor[i] - c) * t));
+      return `rgb(${r}, ${g}, ${b})`;
+    };
+
+    const drawCell = (index: number) => {
+      const x = (index % cols) * CELL;
+      const y = Math.floor(index / cols) * CELL;
+      ctx.clearRect(x, y, CELL, CELL);
+      ctx.fillStyle = mix(heat[index]);
+      ctx.fillText(chars[index], x + CELL / 2, y + CELL / 2);
+    };
+
+    const drawAll = () => {
+      ctx.clearRect(0, 0, cols * CELL, rows * CELL);
+      for (let i = 0; i < chars.length; i++) drawCell(i);
+    };
+
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.font = `${FONT_SIZE}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      cols = Math.ceil(window.innerWidth / CELL);
+      rows = Math.ceil(window.innerHeight / CELL);
+      chars = Array.from({ length: cols * rows }, randomGlyph);
+      heat = new Float32Array(cols * rows);
+      drawAll();
+    };
+
+    const applyTheme = () => {
+      baseColor = readColor('--color-border');
+      accentColor = readColor('--color-accent');
+      drawAll();
+    };
+
+    const heatAroundPointer = () => {
+      if (!pointer) return;
+      const minCol = Math.max(0, Math.floor((pointer.x - RADIUS) / CELL));
+      const maxCol = Math.min(cols - 1, Math.floor((pointer.x + RADIUS) / CELL));
+      const minRow = Math.max(0, Math.floor((pointer.y - RADIUS) / CELL));
+      const maxRow = Math.min(rows - 1, Math.floor((pointer.y + RADIUS) / CELL));
+      for (let row = minRow; row <= maxRow; row++) {
+        for (let col = minCol; col <= maxCol; col++) {
+          const dx = col * CELL + CELL / 2 - pointer.x;
+          const dy = row * CELL + CELL / 2 - pointer.y;
+          const strength = 1 - Math.hypot(dx, dy) / RADIUS;
+          const index = row * cols + col;
+          if (strength > heat[index]) heat[index] = strength;
+        }
+      }
+    };
+
+    const tick = (time: number) => {
+      frame = 0;
+      heatAroundPointer();
+      let active = false;
+      for (let i = 0; i < heat.length; i++) {
+        if (heat[i] === 0) continue;
+        heat[i] = heat[i] < 0.02 ? 0 : heat[i] * DECAY;
+        if (heat[i] > 0.5 && Math.random() < 0.05) chars[i] = randomGlyph();
+        drawCell(i);
+        active = true;
+      }
+      if (!reducedMotion && time - lastFlip > FLIP_INTERVAL_MS) {
+        lastFlip = time;
+        const flips = Math.ceil(chars.length * FLIP_SHARE);
+        for (let n = 0; n < flips; n++) {
+          const index = Math.floor(Math.random() * chars.length);
+          chars[index] = randomGlyph();
+          drawCell(index);
+        }
+      }
+      if (active || pointer || !reducedMotion) schedule();
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener('pointermove', (event) => {
+      pointer = { x: event.clientX, y: event.clientY };
+      schedule();
+    });
+    document.documentElement.addEventListener('pointerleave', () => {
+      pointer = null;
+    });
+    window.addEventListener('resize', resize);
+    new MutationObserver(applyTheme).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    resize();
+    applyTheme();
+    schedule();
+  }
+</script>
+
+<style>
+  .code-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+  }
+</style>
