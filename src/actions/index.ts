@@ -4,6 +4,12 @@ import { eq, sql } from 'drizzle-orm';
 import { db } from '../lib/db';
 import { photos } from '../lib/schema';
 import { createSessionCookie, requireAuth, verifyPassword, SESSION_COOKIE_NAME } from '../lib/auth';
+import {
+  clearFailedLogins,
+  lockoutMinutesRemaining,
+  loginClientKey,
+  recordFailedLogin,
+} from '../lib/loginThrottle';
 import { processAndStoreImage, deleteStoredImage } from '../lib/images';
 import { readCameraSettings } from '../lib/exif';
 import { CATEGORIES, type CategorySlug } from '../lib/categories';
@@ -15,9 +21,19 @@ const login = defineAction({
   accept: 'form',
   input: z.object({ password: z.string() }),
   handler: async ({ password }, context) => {
+    const clientKey = loginClientKey(context.request, context.clientAddress);
+    const lockoutMinutes = lockoutMinutesRemaining(clientKey);
+    if (lockoutMinutes > 0) {
+      throw new ActionError({
+        code: 'TOO_MANY_REQUESTS',
+        message: `Too many failed attempts. Try again in ${lockoutMinutes} minute${lockoutMinutes === 1 ? '' : 's'}.`,
+      });
+    }
     if (!verifyPassword(password)) {
+      recordFailedLogin(clientKey);
       throw new ActionError({ code: 'UNAUTHORIZED', message: 'Incorrect password.' });
     }
+    clearFailedLogins(clientKey);
     const cookie = createSessionCookie();
     context.cookies.set(cookie.name, cookie.value, cookie.options);
   },
