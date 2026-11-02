@@ -315,7 +315,7 @@ button {
 
 button:hover {
   background: var(--color-accent-dim);
-  color: var(--color-text);
+  color: var(--color-on-accent-dim);
 }
 
 button:disabled {
@@ -325,8 +325,8 @@ button:disabled {
 
 button.danger {
   background: transparent;
-  border: 1px solid #7a3b3b;
-  color: #d97373;
+  border: 1px solid var(--color-danger-border);
+  color: var(--color-danger);
 }
 
 button.outline {
@@ -394,7 +394,7 @@ button.outline {
 }
 
 .error {
-  color: #d97373;
+  color: var(--color-danger);
   font-size: 0.85rem;
   margin: 0;
 }

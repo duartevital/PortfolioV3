@@ -1,4 +1,6 @@
-:root {
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
   --color-bg: #0a0a0a; /* near-black canvas */
   --color-surface: #141414; /* card / panel backgrounds */
   --color-border: #232323; /* subtle dividers */
@@ -6,4 +8,21 @@
   --color-muted: #6b6b6b; /* secondary / metadata text */
   --color-accent: #6b8f71; /* muted sage green */
   --color-accent-dim: #4a6450; /* darker accent for hover states */
+  --color-on-accent-dim: #e8e8e8;
+  --color-danger: #d97373;
+  --color-danger-border: #7a3b3b;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #f7f6f3;
+  --color-surface: #ffffff;
+  --color-border: #e0ddd6;
+  --color-text: #1a1a1a;
+  --color-muted: #6b6b6b;
+  --color-accent: #4f7356;
+  --color-accent-dim: #3b5741;
+  --color-on-accent-dim: #ffffff;
+  --color-danger: #b23b3b;
+  --color-danger-border: #d9a3a3;
 }
