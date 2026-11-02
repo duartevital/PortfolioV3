@@ -12,7 +12,8 @@
     "astro": "astro",
     "check": "astro check",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "og:generate": "node scripts/generate-og-image.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^11.0.2",
