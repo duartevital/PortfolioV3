@@ -176,11 +176,7 @@ onUnmounted(() => {
             :width="photo.width"
             :height="photo.height"
           />
-          <div class="viewfinder" data-theme="dark" aria-hidden="true">
-            <span class="corner top-left" />
-            <span class="corner top-right" />
-            <span class="corner bottom-left" />
-            <span class="corner bottom-right" />
+          <div class="exposure-overlay" data-theme="dark" aria-hidden="true">
             <p v-if="exposureSettings(photo).length" class="readout">
               {{ exposureSettings(photo).join(' · ') }}
             </p>
@@ -305,53 +301,12 @@ onUnmounted(() => {
   position: relative;
 }
 
-.viewfinder {
+.exposure-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.25s ease;
-}
-
-.corner {
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  border: 0 solid var(--color-text);
-  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
-  transition: transform 0.3s ease;
-}
-
-.top-left {
-  top: 12px;
-  left: 12px;
-  border-top-width: 1.5px;
-  border-left-width: 1.5px;
-  transform: translate(-8px, -8px);
-}
-
-.top-right {
-  top: 12px;
-  right: 12px;
-  border-top-width: 1.5px;
-  border-right-width: 1.5px;
-  transform: translate(8px, -8px);
-}
-
-.bottom-left {
-  bottom: 12px;
-  left: 12px;
-  border-bottom-width: 1.5px;
-  border-left-width: 1.5px;
-  transform: translate(-8px, 8px);
-}
-
-.bottom-right {
-  bottom: 12px;
-  right: 12px;
-  border-bottom-width: 1.5px;
-  border-right-width: 1.5px;
-  transform: translate(8px, 8px);
 }
 
 .readout {
@@ -360,7 +315,7 @@ onUnmounted(() => {
   right: 0;
   bottom: 0;
   margin: 0;
-  padding: 2rem 2.25rem 1.1rem;
+  padding: 2rem 1rem 0.75rem;
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
   color: var(--color-text);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -378,18 +333,8 @@ onUnmounted(() => {
     opacity: 0.4;
   }
 
-  .masonry-item:hover .viewfinder {
+  .masonry-item:hover .exposure-overlay {
     opacity: 1;
-  }
-
-  .masonry-item:hover .corner {
-    transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .corner {
-    transition: none;
   }
 }
 
