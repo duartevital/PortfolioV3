@@ -12,7 +12,7 @@ const { genre } = Astro.params as { genre: GenreSlug };
 const { label, description } = GENRES[genre];
 ---
 
-<BaseLayout title={`${label} Photography — Duarte Vital`} description={description}>
+<BaseLayout title={`${label} Photography — Vital Portfolio`} description={description}>
   <h1 class="site-title">{label}</h1>
   <PhotographyNav />
   <Gallery genre={genre} client:load />
